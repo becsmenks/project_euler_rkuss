@@ -851,3 +851,6 @@ names_scores <- names %>%
 names_scores %>% 
   summarise(total = sum(score)) %>% 
   pull(total)
+
+
+
