@@ -58,7 +58,7 @@ data.frame(fn = fib_seq) %>%
   summarise(sum = sum(fn)) %>%
   pull(sum)
 
-# 4613732
+# 4613732 - CORRECT!
 
 # Problem 3 - Largest prime factor ----------------------------------------
 
@@ -75,7 +75,7 @@ integer_quotients <- 600851475143 %/% primes_up_to_n
 
 max(primes_up_to_n[quotients == integer_quotients])
 
-# 6857
+# 6857 - CORRECT!
 
 # Problem 4 - Largest palindrome product ----------------------------------
 
@@ -114,7 +114,7 @@ three_digit_combos %>%
   summarise(max = max(product)) %>%
   pull(max)
 
-# 906609
+# 906609 - CORRECT!
 
 # Problem 5 - Smallest multiple -------------------------------------------
 
@@ -170,7 +170,7 @@ data.frame(number = 1:100) %>%
   mutate(difference = square_of_sum - sum_of_squares) %>%
   pull(difference)
 
-# 25164150
+# 25164150 - CORRECT!
 
 
 # Problem 7 - 10001st prime -----------------------------------------------
@@ -186,7 +186,7 @@ first_primes <- sieve_of_eratosthenes(125000)
 
 first_primes[10001]
 
-# 104743
+# 104743 - CORRECT!
 
 
 # Problem 8 - Largest product in a series ---------------------------------
@@ -256,7 +256,7 @@ digits %>%
   pull(product) %>%
   max()
 
-# 23514624000
+# 23514624000 - CORRECT!
 
 # Problem 9 - Special Pythagorean triplet ---------------------------------
 
@@ -290,7 +290,7 @@ data.frame(a = 1:try_up_to) %>%
   filter(sum == 1000) %>%
   pull(product)
 
-# 31875000
+# 31875000 - CORRECT!
 
 
 # Problem 10 - Summation of primes ----------------------------------------
@@ -422,7 +422,7 @@ grid %>%
   pull(product) %>%
   max()
 
-# 70600674
+# 70600674 - CORRECT!
 
 # Problem 12 - Highly divisible triangular number -------------------------
 
@@ -702,7 +702,7 @@ nums_and_words %>%
   summarise(len = sum(len)) %>% 
   pull(len)
 
-# 21124
+# 21124 - CORRECT!
 
 
 # Problem 18 - Maximum path sum I -----------------------------------------
@@ -768,7 +768,7 @@ dates %>%
          dow == "Sunday") %>% 
   nrow()
 
-# 171
+# 171 - CORRECT!
 
 
 # Problem 20 - Factorial digit sum ----------------------------------------

@@ -108,3 +108,65 @@ seq_df %>%
   pull(sum_fits)
 
 # 37076114526 - CORRECT!
+
+
+# Problem 158 - Exploring strings for which only one character com --------
+
+# Taking three different letters from the 26 letters of the alphabet, character 
+# strings of length three can be formed.
+# Examples are 'abc', 'hat' and 'zyx'.
+# When we study these three examples we see that for 'abc' two characters come 
+# lexicographically after its neighbour to the left.
+# For 'hat' there is exactly one character that comes lexicographically after 
+# its neighbour to the left. For 'zyx' there are zero characters that come 
+# lexicographically after its neighbour to the left.
+# In all there are 10400 strings of length 3 for which exactly one character 
+# comes lexicographically after its neighbour to the left.
+# 
+# We now consider strings of n ≤ 26 different characters from the alphabet.
+# For every n, p(n) is the number of strings of length n for which exactly one 
+# character comes lexicographically after its neighbour to the left.
+# 
+# What is the maximum value of p(n)?
+
+pn_df <- data.frame()
+for (n in 2:4) {
+  
+  # Start with a data frame of all combinations
+  pn <- merge_n_times(1:26, # use numbers in place of letters
+                      n = n, 
+                      col = "letter") %>% 
+    tibble::rownames_to_column("combo") %>% 
+    gather(position, letter, starts_with("letter")) %>% 
+    mutate(position = as.numeric(str_remove(position, "letter"))) %>% 
+    # Get the neighbor to the left and check if it's after
+    group_by(combo) %>% 
+    arrange(position) %>% 
+    mutate(letter_left = lag(letter),
+           comes_after = if_else(is.na(letter_left), FALSE,
+                                 letter > letter_left)) %>% 
+    summarise(n_comes_after = sum(comes_after)) %>% 
+    ungroup() %>% 
+    # Count all cases where exactly one letter comes after it's left-neighbor
+    filter(n_comes_after == 1) %>% 
+    nrow()
+  
+  pn_df <- bind_rows(pn_df,
+                     data.frame(n = n, pn = pn))
+}
+
+# Getting 11700 for n = 3, which isn't even right, plus this algorithm is way
+# too slow
+
+
+
+
+
+
+
+
+
+
+
+
+

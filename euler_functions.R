@@ -64,3 +64,20 @@ sum_digits <- function(n) {
   
   sum(all_digits)
 }
+
+# Merge n times
+merge_n_times <- function(vector, n = 2, col = "col") {
+  
+  # Initialize the df
+  df <- data.frame(vector)
+  names(df) <- paste0(col, "1")
+  
+  for (i in 2:n) {
+    # Merge in same dataframe with new column header
+    df_mrg <- data.frame(vector)
+    names(df_mrg) <- paste0(col, as.character(i))
+    
+    df <- merge(df, df_mrg)
+  }
+  df
+}
