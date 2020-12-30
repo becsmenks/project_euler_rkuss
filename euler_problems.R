@@ -1,3 +1,7 @@
+# Project Euler
+# projecteuler.net
+# Becca Kuss
+
 # Libraries ---------------------------------------------------------------
 
 library(dplyr)
