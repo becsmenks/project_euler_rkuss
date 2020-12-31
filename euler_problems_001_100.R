@@ -117,13 +117,16 @@ while (!found_it & number < 2000000) {
   
   message(number)
   
-  # Check if the number is divisible by each required number
-  quotients <- number / (1:divis_by_up_to)
+  # # Check if the number is divisible by each required number - method A
+  # quotients <- number / (1:divis_by_up_to)
+  # 
+  # integer_quotients <- number %/% (1:divis_by_up_to)
+  # 
+  # found_it <- all(quotients == integer_quotients)
+  # Check if the number is divisible by each required number - method B
+  remainders <- number %% (1:divis_by_up_to)
   
-  integer_quotients <- number %/% (1:divis_by_up_to)
-  
-  found_it <- all(quotients == integer_quotients)
-  
+  found_it <- all(remainders == 0)
   
 }
 
@@ -1169,7 +1172,7 @@ power <- 5
 # determined based on 'power', but I got lucky and this one works
 scale_to_test <- 6
 
-nums <- data.frame(number = 2:(10^scale_to_test)) %>% 
+nums <- data.frame(number = 2:((10^scale_to_test) - 1)) %>% 
   mutate(number_char = as.character(number)) %>% 
   separate(number_char, 
            into = as.character(1:(scale_to_test + 1)),
@@ -1188,7 +1191,160 @@ nums %>%
   pull(number) %>% 
   sum()
 
+# 443839 - CORRECT!
+
+# Problem 31 - Coin sums --------------------------------------------------
+
+# In the United Kingdom the currency is made up of pound (£) and pence (p). 
+# There are eight coins in general circulation:
+#   
+#   1p, 2p, 5p, 10p, 20p, 50p, £1 (100p), and £2 (200p).
+# 
+# It is possible to make £2 in the following way:
+#   
+#   1×£1 + 1×50p + 2×20p + 1×5p + 1×2p + 3×1p
+# How many different ways can £2 be made using any number of coins?
+  
+coins <- tribble(
+  ~coin, ~value,
+  "1p",  1,
+  "2p",  2,
+  "5p",  5,
+  "10p", 10,
+  "20p", 20,
+  "50p", 50,
+  "E1",  100,
+  "E2",  200
+)
+  
+  
+
+
+# Problem 33 - Digit cancelling fractions ---------------------------------
+
+# The fraction 49/98 is a curious fraction, as an inexperienced mathematician in 
+# attempting to simplify it may incorrectly believe that 49/98 = 4/8, which is 
+# correct, is obtained by cancelling the 9s.
+# 
+# We shall consider fractions like, 30/50 = 3/5, to be trivial examples.
+# 
+# There are exactly four non-trivial examples of this type of fraction, less 
+# than one in value, and containing two digits in the numerator and denominator.
+# 
+# If the product of these four fractions is given in its lowest common terms, 
+# find the value of the denominator.
+
+
+digit_cancelling_fracs <- data.frame(num = 10:99) %>% 
+  merge(data.frame(den = 10:99)) %>% 
+  # Separate digits
+  mutate(num_digit2 = num %% 10,
+         den_digit2 = den %% 10,
+         num_digit1 = (num - num_digit2) / 10,
+         den_digit1 = (den - den_digit2) / 10) %>% 
+  # Fraction must be less than one, so filter for num < den
+  filter(num < den,
+         # These are the only candidates for digit-cancelling
+         num_digit2 == den_digit2 |
+           num_digit1 == den_digit1 |
+           num_digit1 == den_digit2 |
+           num_digit2 == den_digit1,
+         # These are trivial
+         !(num_digit2 == 0 & den_digit2 == 0)) %>% 
+  # Check if reduced fraction equals original fraction
+  mutate(orig_frac = num / den,
+         redc_frac = case_when(
+           num_digit2 == den_digit2 ~ num_digit1 / den_digit1,
+           num_digit1 == den_digit1 ~ num_digit2 / den_digit2,
+           num_digit1 == den_digit2 ~ num_digit2 / den_digit1,
+           num_digit2 == den_digit1 ~ num_digit1 / den_digit2
+         )) %>% 
+  filter(orig_frac == redc_frac)
+
+frac_product <- digit_cancelling_fracs %>% 
+  pull(orig_frac) %>% 
+  prod()
+
+1 / frac_product
+
+# 100 - CORRECT!
+
+# Problem 34 - Digit factorials -------------------------------------------
+
+# 145 is a curious number, as 1! + 4! + 5! = 1 + 24 + 120 = 145.
+# 
+# Find the sum of all numbers which are equal to the sum of the factorial of 
+# their digits.
+# 
+# Note: As 1! = 1 and 2! = 2 are not sums they are not included.
+
+scale_to_test <- 5
+
+digit_facts <- data.frame(number = 3:((10^scale_to_test) - 1)) %>% 
+  mutate(number_char = as.character(number)) %>% 
+  separate(number_char, 
+           into = as.character(1:(scale_to_test + 1)),
+           sep = "",
+           remove = T) %>% 
+  gather(digit_i, digit, -number) %>% 
+  mutate(digit = as.numeric(digit),
+         digit_fact = factorial(digit)) %>% 
+  filter(!is.na(digit))
+
+digit_facts %>% 
+  group_by(number) %>% 
+  summarise(sum_digit_facts = sum(digit_fact)) %>% 
+  ungroup() %>% 
+  filter(number == sum_digit_facts) %>% 
+  pull(number) %>% 
+  sum()
+
+# 40730 - CORRECT!
+
+
+# Problem 35 - Circular primes --------------------------------------------
+
+# The number, 197, is called a circular prime because all rotations of the 
+# digits: 197, 971, and 719, are themselves prime.
+# 
+# There are thirteen such primes below 100: 2, 3, 5, 7, 11, 13, 17, 31, 37, 71, 
+# 73, 79, and 97.
+# 
+# How many circular primes are there below one million?
+
+x <- 100
+
+primes_lt_x <- sieve_of_eratosthenes(x)
 
 
 
+# Problem 36 - Double-base palindromes ------------------------------------
 
+# The decimal number, 585 = 1001001001 (binary), is palindromic in both bases.
+# 
+# Find the sum of all numbers, less than one million, which are palindromic in 
+# base 10 and base 2.
+# 
+# (Please note that the palindromic number, in either base, may not include 
+# leading zeros.)
+
+db_pals <- c()
+for (i in 1:999999) {
+  
+  # Check if number is palindromic in base 10
+  i_ten <- str_split(as.character(i), pattern = "")[[1]]
+  
+  if (all(i_ten == rev(i_ten))) {
+    # Check if number is palindromic in base 2
+    i_raw <- intToBits(i)
+    i_bin <- str_split(paste0(as.numeric(i_raw[1:max(which(i_raw > 0))]), 
+                              collapse = ""),
+                       pattern = "")[[1]]
+    
+    if (all(i_bin == rev(i_bin))) {
+      db_pals <- c(db_pals, i)
+    }
+  }
+}
+
+sum(db_pals)

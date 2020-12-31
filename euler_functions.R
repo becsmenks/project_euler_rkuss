@@ -29,7 +29,7 @@ sieve_of_eratosthenes <- function(n) {
       # for j = i2, i2+i, i2+2i, i2+3i, ..., not exceeding n do
       j <- i^2
       x <- 1
-      while (j < n) {
+      while (j <= n) {
         
         # A[j] := false
         a$check[a$ind == j] <- FALSE
