@@ -794,7 +794,7 @@ sum_digits(n_factorial)
 # What is the total of all the name scores in the file?
 
 # Read in names data
-names <- read.csv("~/git/project_euler_rkuss/euler_data/names.txt",
+names <- read.csv("~/git/project_euler_rkuss/euler_data/p022_names.txt",
                   header = F) %>% 
   gather(key, name, starts_with("V")) %>% 
   filter(!is.na(name)) %>% 

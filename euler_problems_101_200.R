@@ -105,6 +105,47 @@ seq_df %>%
 # 37076114526 - CORRECT!
 
 
+# Problem 102 - Triangle containment --------------------------------------
+
+# Three distinct points are plotted at random on a Cartesian plane, for which 
+# -1000 ≤ x, y ≤ 1000, such that a triangle is formed.
+# 
+# Consider the following two triangles:
+#   
+#   A(-340,495), B(-153,-910), C(835,-947)
+# 
+#   X(-175,41), Y(-421,-714), Z(574,-645)
+# 
+# It can be verified that triangle ABC contains the origin, whereas triangle 
+# XYZ does not.
+# 
+# Using triangles.txt (right click and 'Save Link/Target As...'), a 27K text 
+# file containing the co-ordinates of one thousand "random" triangles, find the 
+# number of triangles for which the interior contains the origin.
+# 
+# NOTE: The first two examples in the file represent the triangles in the 
+# example given above.
+
+# Read in names data
+triangles <- read.csv("~/git/project_euler_rkuss/euler_data/p102_triangles.txt",
+                      header = F) %>% 
+  tibble::rownames_to_column("triangle") %>% 
+  rename(x_a = V1, y_a = V2,
+         x_b = V3, y_b = V4,
+         x_c = V5, y_c = V6) %>% 
+  gather(key, coordinate, -triangle) %>% 
+  separate(key, into = c("x_or_y", "point"), sep = "_")
+
+# Check if any coordinates lie on the origin or axes
+triangles %>% 
+  group_by(triangle, point) %>% 
+  summarise(is_on_axis = any(coordinate == 0),
+            is_on_origin = all(coordinate == 0)) %>% 
+  ungroup() %>% 
+  View()
+
+
+
 # Problem 145 - How many reversible numbers are there below one-bi --------
 
 # Some positive integers n have the property that the sum [ n + reverse(n) ] 
