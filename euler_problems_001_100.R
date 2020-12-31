@@ -1348,3 +1348,71 @@ for (i in 1:999999) {
 }
 
 sum(db_pals)
+
+
+
+# Problem 58 - Spiral primes ----------------------------------------------
+
+
+# Starting with 1 and spiralling anticlockwise in the following way, a square 
+# spiral with side length 7 is formed.
+# 
+# 37 36 35 34 33 32 31
+# 38 17 16 15 14 13 30
+# 39 18  5  4  3 12 29
+# 40 19  6  1  2 11 28
+# 41 20  7  8  9 10 27
+# 42 21 22 23 24 25 26
+# 43 44 45 46 47 48 49
+# 
+# It is interesting to note that the odd squares lie along the bottom right 
+# diagonal, but what is more interesting is that 8 out of the 13 numbers lying 
+# along both diagonals are prime; that is, a ratio of 8/13 ≈ 62%.
+# 
+# If one complete new layer is wrapped around the spiral above, a square spiral 
+# with side length 9 will be formed. If this process is continued, what is the 
+# side length of the square spiral for which the ratio of primes along both 
+# diagonals first falls below 10%?
+
+# Start by finding a lot of primes
+p <- sieve_of_eratosthenes(50000)
+
+# Set the threshold we're waiting to fall under
+prime_ratio_thresh <- 0.1
+
+# Initialize everything
+r <- 1
+side_length <- 1
+diag_nums <- 1
+primes_on_diag <- c()
+
+# Add spiraling layers until meeting threshold
+while (r >= prime_ratio_thresh & side_length < 100000) {
+  
+  # Increment side length
+  side_length <- side_length + 2
+  
+  # Find the numbers along the diagonal
+  ul <- side_length ^ 2 - ((side_length - 1) * 2) # upper left 
+  ur <- side_length ^ 2 - ((side_length - 1) * 3) # upper right
+  ll <- side_length ^ 2 - ((side_length - 1) * 1) # lower left 
+  lr <- side_length ^ 2 # lower right 
+  
+  # Check for primality
+  if (is_prime(ur, p)) primes_on_diag <- c(primes_on_diag, ur)
+  if (is_prime(ul, p)) primes_on_diag <- c(primes_on_diag, ul)
+  if (is_prime(ll, p)) primes_on_diag <- c(primes_on_diag, ll)
+  
+  # Save numbers along the diagonal
+  diag_nums <- c(diag_nums, ur, ul, ll, lr)
+  
+  r <- length(primes_on_diag) / length(diag_nums)
+  
+}
+
+side_length
+
+# 26241 - CORRECT!
+
+
+
