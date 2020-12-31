@@ -105,6 +105,53 @@ seq_df %>%
 # 37076114526 - CORRECT!
 
 
+# Problem 145 - How many reversible numbers are there below one-bi --------
+
+# Some positive integers n have the property that the sum [ n + reverse(n) ] 
+# consists entirely of odd (decimal) digits. For instance, 36 + 63 = 99 and 
+# 409 + 904 = 1313. We will call such numbers reversible; so 36, 63, 409, and 
+# 904 are reversible. Leading zeroes are not allowed in either n or reverse(n).
+# 
+# There are 120 reversible numbers below one-thousand.
+# 
+# How many reversible numbers are there below one-billion (109)?
+
+rev_nums <- data.frame(n = 1:999) %>% 
+  # Remove numbers divisible by 10 because reverse(n) would have a leading 0,
+  # and remove numbers less than 10, which would always be even when added to
+  # itself
+  filter(n %% 10 != 0,
+         n >= 10) %>% 
+  # If both first and last digits are odd or even, you'll end up with an even i
+  # n the reversed sum, so remove those
+  mutate(n_scale = case_when(n < 10 ~ 1,
+                             n < 100 ~ 10,
+                             n < 1000 ~ 100,
+                             n < 10000 ~ 1000),
+         first_digit = floor(n / n_scale),
+         last_digit = n - (first_digit * n_scale),
+         last_digit = if_else(last_digit > 10, 
+                              last_digit - (floor(last_digit / n_scale * 10) * n_scale / 10), 
+                              last_digit),
+         middle_digit = (n - (first_digit * n_scale) - last_digit) / (n_scale / 10),
+         is_odd = n %% 2 == 1,
+         is_first_digit_odd = first_digit %% 2 == 1) %>% 
+  filter(!(is_odd == is_first_digit_odd)) %>% 
+  # Now find reverse(n)
+  mutate(rev_n = if_else(n_scale <= 10,
+                         (last_digit * n_scale) + first_digit,
+                         (last_digit * n_scale) + (middle_digit * n_scale / 10) + first_digit),
+         sum = n + rev_n) %>% 
+  # Filter out any even sums - shouldn't be any based on pre-filters
+  filter(sum %% 2 != 0,
+         floor(sum / 10) %% 2 != 0,
+         floor(sum / 100) %% 2 != 0 | sum < 100,
+         floor(sum / 1000) %% 2 != 0 | sum < 1000)
+
+nrow(rev_nums)
+# Works for n < 1000 but won't generalize to larger scales - need to think 
+# about how to functionalize and scale this
+
 # Problem 158 - Exploring strings for which only one character com --------
 
 # Taking three different letters from the 26 letters of the alphabet, character 
