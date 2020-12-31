@@ -7,6 +7,7 @@ library(tidyr)
 library(stringr)
 library(lubridate)
 library(ggplot2)
+library(lpSolve)
 
 # Sieve of Eratosthenes
 # (Too slow)
