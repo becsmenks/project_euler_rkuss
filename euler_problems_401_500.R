@@ -2,14 +2,7 @@
 # projecteuler.net
 # Becca Kuss
 
-library(dplyr)
-library(tidyr)
-library(stringr)
-library(lubridate)
-
 source('~/git/project_euler_rkuss/euler_functions.R')
-
-options(digits = 12)
 
 # Problem 493 - Under The Rainbow -----------------------------------------
 
@@ -22,6 +15,8 @@ options(digits = 12)
 
 # Need to calculate probability of each distinct count to get expected value
 # E(n_col) = 1*P(1) + 2*P(2) + ... + 7*P(7)
+
+options(digits = 12)
 
 n <- 70
 k <- 20

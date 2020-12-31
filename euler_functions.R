@@ -2,6 +2,12 @@
 # projecteuler.net
 # Becca Kuss
 
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(lubridate)
+library(ggplot2)
+
 # Sieve of Eratosthenes
 # (Too slow)
 sieve_of_eratosthenes <- function(n) {

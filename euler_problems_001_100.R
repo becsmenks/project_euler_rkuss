@@ -2,11 +2,6 @@
 # projecteuler.net
 # Becca Kuss
 
-library(dplyr)
-library(tidyr)
-library(stringr)
-library(lubridate)
-
 source('~/git/project_euler_rkuss/euler_functions.R')
 
 # Problem 1 - Multiples of 3 and 5 ----------------------------------------

@@ -2,12 +2,6 @@
 # projecteuler.net
 # Becca Kuss
 
-library(dplyr)
-library(tidyr)
-library(stringr)
-library(lubridate)
-library(ggplot2)
-
 source('~/git/project_euler_rkuss/euler_functions.R')
 
 # Problem 205 - Dice Game -------------------------------------------------
