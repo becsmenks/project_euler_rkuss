@@ -81,3 +81,24 @@ merge_n_times <- function(vector, n = 2, col = "col") {
   }
   df
 }
+
+# Generate Fibonacci sequence up to X
+generate_fib_seq <- function(x) {
+  fn_minus1 <- 1
+  fn <- 1
+  fib_seq <- c()
+  while (fn < x) {
+    
+    # Create the sequence
+    fib_seq <- c(fib_seq, fn)
+    
+    # Increment to the next fn
+    fn_plus1 <- fn + fn_minus1
+    
+    # Reset values
+    fn_minus1 <- fn
+    fn <- fn_plus1
+    
+  }
+  fib_seq
+}

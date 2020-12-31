@@ -35,22 +35,7 @@ data.frame(number = 1:999) %>%
 # By considering the terms in the Fibonacci sequence whose values do not exceed
 # four million, find the sum of the even-valued terms.
 
-fn_minus1 <- 1
-fn <- 1
-fib_seq <- c()
-while (fn < 4000000) {
-  
-  # Create the sequence
-  fib_seq <- c(fib_seq, fn)
-  
-  # Increment to the next fn
-  fn_plus1 <- fn + fn_minus1
-  
-  # Reset values
-  fn_minus1 <- fn
-  fn <- fn_plus1
-  
-}
+fib_seq <- generate_fib_seq(4000000)
 
 data.frame(fn = fib_seq) %>%
   mutate(is_even = fn %% 2 == 0) %>%
@@ -965,3 +950,70 @@ answer <- c(answer, digits_to_permute)
 paste0(as.character(answer), collapse = "")
 
 # 2783915460 - CORRECT!
+
+
+# Problem 25 - 1000-digit Fibonacci number --------------------------------
+
+# The Fibonacci sequence is defined by the recurrence relation:
+#   
+#   Fn = Fn−1 + Fn−2, where F1 = 1 and F2 = 1.
+# Hence the first 12 terms will be:
+#   
+# F1 = 1
+# F2 = 1
+# F3 = 2
+# F4 = 3
+# F5 = 5
+# F6 = 8
+# F7 = 13
+# F8 = 21
+# F9 = 34
+# F10 = 55
+# F11 = 89
+# F12 = 144
+# The 12th term, F12, is the first term to contain three digits.
+# 
+# What is the index of the first term in the Fibonacci sequence to contain 1000 
+# digits?
+
+
+fib_digits <- data.frame(fn = generate_fib_seq(1e1000)) %>% 
+  mutate(n_digits = floor(log10(fn) + 1))
+
+fib_digits_counts <- fib_digits %>% 
+  group_by(n_digits) %>% 
+  summarise(n_fn = n())
+
+# Seems like the pattern is something like 45554555545555 repeating, starting
+# with n_digits = 311
+pattern_to_proj <- c(4, 5,5,5,4,5,5,5,5,4,5,5,5,5)
+
+starting_n_digits <- 311
+n_patterns <- ceiling((1000 - starting_n_digits) / length(pattern_to_proj))
+ending_n_digits <- starting_n_digits + (n_patterns * length(pattern_to_proj)) - 1
+n_digits_proj <- starting_n_digits:ending_n_digits
+
+# Project out this pattern until we reach Fibonacci numbers with at least 1000
+# digits
+fib_digits_counts_proj <- data.frame(n_digits = n_digits_proj,
+                                     n_fn = rep(pattern_to_proj, 
+                                                times = n_patterns)) %>% 
+  bind_rows(data.frame(n_digits = 310, n_fn = 5))
+
+# Combine the projected counts to get fn counts through 1000
+fib_digits_counts_combined <- fib_digits_counts %>% 
+  mutate(n_fn = if_else(n_digits == 309, as.integer(5), n_fn)) %>% 
+  bind_rows(fib_digits_counts_proj)
+
+# Find the number of Fibonacci numbers with less than 1000 digits and add 1
+fib_digits_counts_combined %>% 
+  filter(n_digits < 1000) %>% 
+  summarise(n_fn = sum(n_fn)) %>% 
+  pull(n_fn) + 1
+  
+# 4782 - CORRECT!
+
+
+
+
+
