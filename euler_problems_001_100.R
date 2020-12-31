@@ -18,7 +18,7 @@ data.frame(number = 1:999) %>%
   summarise(sum = sum(number)) %>%
   pull(sum)
 
-# 233168
+# 233168 - CORRECT!
 
 # Problem 2 - Even Fibonacci numbers --------------------------------------
 
@@ -1079,6 +1079,7 @@ recurr_sequences %>%
   filter(recurr_seq_len == max(recurr_seq_len)) %>% 
   pull(d)
 
+# 983 - CORRECT!
 
 
 
