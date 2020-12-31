@@ -896,6 +896,7 @@ num_tests %>%
   summarise(sum = sum(n)) %>% 
   pull(sum)
 
+# 4179871 - CORRECT!
 
 # Problem 24 - Lexicographic permutations ---------------------------------
 
@@ -1013,6 +1014,75 @@ fib_digits_counts_combined %>%
   
 # 4782 - CORRECT!
 
+
+# Problem 26 - Reciprocal cycles ------------------------------------------
+
+# A unit fraction contains 1 in the numerator. The decimal representation of the 
+# unit fractions with denominators 2 to 10 are given:
+#   
+# 1/2	= 	0.5
+# 1/3	= 	0.(3)
+# 1/4	= 	0.25
+# 1/5	= 	0.2
+# 1/6	= 	0.1(6)
+# 1/7	= 	0.(142857)
+# 1/8	= 	0.125
+# 1/9	= 	0.(1)
+# 1/10	= 	0.1
+# Where 0.1(6) means 0.166666..., and has a 1-digit recurring cycle. It can be 
+# seen that 1/7 has a 6-digit recurring cycle.
+# 
+# Find the value of d < 1000 for which 1/d contains the longest recurring cycle 
+# in its decimal fraction part.
+
+recurr_sequences <- data.frame()
+for (d in 1:999) {
+  
+  # Initialize things
+  result <- c() 
+  prev_remainders <- c()
+  rem <- 1 %% d
+  
+  # Keep finding remainder until either remainder becomes 0 or repeats
+  while ((rem != 0) & !(rem %in% prev_remainders)) {
+    
+    # Store this remainder
+    prev_remainders <- c(prev_remainders, rem)
+    
+    # Multiply remainder with 10
+    rem <- rem * 10
+    
+    # Append remainder / d to result
+    result_part <- floor(rem / d)
+    result <- c(result, result_part)
+    
+    # Update remainder
+    rem <- rem %% d
+    
+  }
+  
+  # Figure out the recurring part
+  if (rem == 0) {
+    recurr_seq <- ""
+    recurr_seq_len <- 0
+  } else {
+    recurr_seq <- result[which(prev_remainders == rem):length(result)]
+    recurr_seq_len <- length(recurr_seq)
+  }
+  
+  # Append result to data frame
+  recurr_sequences <- data.frame(d = d,
+                                 recurr_seq = paste0(recurr_seq,
+                                                     collapse = ""),
+                                 recurr_seq_len = recurr_seq_len) %>% 
+    bind_rows(recurr_sequences)
+    
+}
+
+# Find d with the longest recurring sequence
+recurr_sequences %>% 
+  filter(recurr_seq_len == max(recurr_seq_len)) %>% 
+  pull(d)
 
 
 
