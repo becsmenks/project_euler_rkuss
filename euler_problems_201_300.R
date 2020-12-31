@@ -107,28 +107,41 @@ probabilities %>%
 
 
 # Create a data frame of heights
-mountain_region <- data.frame(x = 0:1500) %>% 
-  merge(data.frame(y = 0:1600)) %>% 
+mountain_region <- data.frame(x = -200:1800) %>% 
+  merge(data.frame(y = -200:1800)) %>% 
   mutate(h = (5000 - 0.005 * (x*x+y*y+x*y) + 12.5*(x+y)) * 
            exp(-abs(0.000001*(x*x+y*y) - 0.0015*(x+y) + 0.7)))
 
+# Create a data frame of labeled points A and B
+a_and_b <- data.frame(point = c('A', 'B'),
+                      x = c(200, 1400),
+                      y = c(200, 1400)) %>% 
+  left_join(mountain_region, by = c('x', 'y')) %>% 
+  mutate(label = paste0(point, " (", scales::comma(round(h)), " ft)"))
+
 # Plot it to see what it looks like
 mountain_region %>% 
-  filter(x %% 10 == 0,
-         y %% 10 == 0) %>% 
+  filter(x %% 10 == 0, y %% 10 == 0) %>% 
+  rename(`Elevation (ft)` = h) %>% 
   ggplot() +
-  aes(x = x, y = y, color = h) +
-  geom_point()
+  aes(x = x, y = y, color = `Elevation (ft)`) +
+  geom_point() +
+  # Add dashed lines to bound the region the mosquito can't leave
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_vline(xintercept = 1600, linetype = 'dashed') +
+  # Add points A and B
+  geom_point(data = a_and_b, 
+             aes(x = x, y = y), 
+             color = 'black') +
+  geom_text(data = a_and_b, 
+            aes(x = x, y = y, label = label), 
+            color = 'black',
+            hjust = 1.1, vjust = 1,
+            size = 3.5) +
+  scale_color_continuous(labels = scales::comma) +
+  xlab("") + ylab("") +
+  ggtitle("A mosquito flying from A to B, \nwithout leaving the bounded area") +
+  theme_bw()
 # Mikey thinks it's not a very interesting mountain range...more like crater 
 # lake
-
-# Find elevation of A
-height_a <- mountain_region %>% 
-  filter(x == 200, y == 200) %>% 
-  pull(h)
-
-# Find elevation of B
-height_b <- mountain_region %>% 
-  filter(x == 1400, y == 1400) %>% 
-  pull(h)
 
