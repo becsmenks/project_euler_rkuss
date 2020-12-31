@@ -1145,3 +1145,50 @@ distinct(a_b_combos, term) %>%
   nrow()
 
 # 9183 - CORRECT!
+
+
+# Problem 30 - Digit fifth powers -----------------------------------------
+
+# Surprisingly there are only three numbers that can be written as the sum of 
+# fourth powers of their digits:
+#   
+# 1634 = 1^4 + 6^4 + 3^4 + 4^4
+# 8208 = 8^4 + 2^4 + 0^4 + 8^4
+# 9474 = 9^4 + 4^4 + 7^4 + 4^4
+# 
+# As 1 = 1^4 is not a sum it is not included.
+# 
+# The sum of these numbers is 1634 + 8208 + 9474 = 19316.
+# 
+# Find the sum of all the numbers that can be written as the sum of fifth powers 
+# of their digits.
+
+power <- 5
+
+# This is just a guess of how many numbers to test. It could probably be 
+# determined based on 'power', but I got lucky and this one works
+scale_to_test <- 6
+
+nums <- data.frame(number = 2:(10^scale_to_test)) %>% 
+  mutate(number_char = as.character(number)) %>% 
+  separate(number_char, 
+           into = as.character(1:(scale_to_test + 1)),
+           sep = "",
+           remove = T) %>% 
+  gather(digit_i, digit, -number) %>% 
+  mutate(digit = as.numeric(digit),
+         digit_power = digit ^ power) %>% 
+  filter(!is.na(digit))
+
+nums %>% 
+  group_by(number) %>% 
+  summarise(sum_digit_power = sum(digit_power)) %>% 
+  filter(number == sum_digit_power) %>% 
+  ungroup() %>% 
+  pull(number) %>% 
+  sum()
+
+
+
+
+
