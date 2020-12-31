@@ -848,9 +848,120 @@ names_scores <- names %>%
   ungroup() %>% 
   mutate(score = alpha_rank * letter_total)
 
-names_scores %>% 
-  summarise(total = sum(score)) %>% 
-  pull(total)
+sum(names_scores$score)
 
 
+# Problem 23 - Non-abundant sums ------------------------------------------
 
+
+# A perfect number is a number for which the sum of its proper divisors is 
+# exactly equal to the number. For example, the sum of the proper divisors of 28 
+# would be 1 + 2 + 4 + 7 + 14 = 28, which means that 28 is a perfect number.
+# 
+# A number n is called deficient if the sum of its proper divisors is less than 
+# n and it is called abundant if this sum exceeds n.
+# 
+# As 12 is the smallest abundant number, 1 + 2 + 3 + 4 + 6 = 16, the smallest 
+# number that can be written as the sum of two abundant numbers is 24. By 
+# mathematical analysis, it can be shown that all integers greater than 28123 
+# can be written as the sum of two abundant numbers. However, this upper limit 
+# cannot be reduced any further by analysis even though it is known that the 
+# greatest number that cannot be expressed as the sum of two abundant numbers is 
+# less than this limit.
+# 
+# Find the sum of all the positive integers which cannot be written as the sum 
+# of two abundant numbers.
+
+num_types <- data.frame()
+for (i in 1:28123) {
+  # Find all divisors of i
+  divsrs_to_test <- 1:(i/2)
+  divsrs <- divsrs_to_test[i %% divsrs_to_test == 0]
+  
+  num_types <- bind_rows(num_types,
+                         data.frame(n = i,
+                                    sum_divsrs = sum(divsrs)))
+}
+
+# Classify numbers as deficient, abundant, or perfect
+num_types <- num_types %>% 
+  mutate(type = case_when(sum_divsrs < n ~ 'deficient',
+                          sum_divsrs > n ~ 'abundant',
+                          sum_divsrs == n ~ 'perfect'))
+
+# Get a list of all abundant numbers
+abundant_numbers <- num_types %>% 
+  filter(type == "abundant") %>% 
+  pull(n)
+
+num_tests <- data.frame()
+for (j in 1:28123) {
+  # Test whether n can be written as the sum of two abundant numbers
+  abnt_nums_lt <- abundant_numbers[abundant_numbers < j]
+  remainders <- j - abnt_nums_lt
+  
+  # Save record
+  num_tests <- bind_rows(num_tests,
+                         data.frame(n = j,
+                                    can_be = any(remainders %in% abnt_nums_lt)))
+}
+
+num_tests %>% 
+  filter(!can_be) %>% 
+  summarise(sum = sum(n)) %>% 
+  pull(sum)
+
+
+# Problem 24 - Lexicographic permutations ---------------------------------
+
+# A permutation is an ordered arrangement of objects. For example, 3124 is one 
+# possible permutation of the digits 1, 2, 3 and 4. If all of the permutations 
+# are listed numerically or alphabetically, we call it lexicographic order. The 
+# lexicographic permutations of 0, 1 and 2 are:
+#   
+#   012   021   102   120   201   210
+# 
+# What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 
+# 5, 6, 7, 8 and 9?
+
+digits_to_permute <- 0:9
+position_to_find <- 1000000
+
+# Start by calculating the number of permutations based on number of digits
+n_permutations <- factorial(length(digits_to_permute))
+
+# Next get how long each "chunk" will be (that is, a group starting with the 
+# same character)
+chunk_length <- n_permutations / length(digits_to_permute)
+
+# Next get how many "chunks" there will be (this could also be length(digits))
+n_chunks <- n_permutations / chunk_length
+
+answer <- c()
+for (i in 1:(length(digits_to_permute) - 1)) {
+  
+  # Find the chunk that will contain the permutation in the position you are
+  # looking for
+  chunk_to_find <- ceiling(position_to_find / chunk_length)
+  
+  # Now we know the starting digit of that chunk
+  answer <- c(answer, digits_to_permute[chunk_to_find])
+  
+  # For the next round, remove the digit you already found
+  digits_to_permute <- digits_to_permute[-chunk_to_find]
+  
+  # For the next round, update the position to find
+  position_to_find <- position_to_find - ((chunk_to_find - 1) * chunk_length)
+    
+  # For the next round, update the chunk length
+  chunk_length <- factorial(length(digits_to_permute)) / length(digits_to_permute)
+  
+}
+
+# Append the last remaining digit to permute
+answer <- c(answer, digits_to_permute)
+
+# Paste all the digits together for the final answer
+paste0(as.character(answer), collapse = "")
+
+# 2783915460 - CORRECT!
