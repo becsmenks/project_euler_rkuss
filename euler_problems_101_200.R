@@ -146,6 +146,57 @@ triangles %>%
 
 
 
+# Problem 112 - Bouncy numbers --------------------------------------------
+
+# Working from left-to-right if no digit is exceeded by the digit to its left it 
+# is called an increasing number; for example, 134468.
+# 
+# Similarly if no digit is exceeded by the digit to its right it is called a 
+# decreasing number; for example, 66420.
+# 
+# We shall call a positive integer that is neither increasing nor decreasing a 
+# "bouncy" number; for example, 155349.
+# 
+# Clearly there cannot be any bouncy numbers below one-hundred, but just over 
+# half of the numbers below one-thousand (525) are bouncy. In fact, the least 
+# number for which the proportion of bouncy numbers first reaches 50% is 538.
+# 
+# Surprisingly, bouncy numbers become more and more common and by the time we 
+# reach 21780 the proportion of bouncy numbers is equal to 90%.
+# 
+# Find the least number for which the proportion of bouncy numbers is exactly 
+# 99%.
+
+exact_prop <- 0.99
+
+bouncy_nums <- c()
+i <- 0
+prop_is_exact <- FALSE
+while (!prop_is_exact & i < 500000) {
+  
+  # Increment i
+  i <- i + 1
+  
+  # Check if i is bouncy
+  i_splt <- as.numeric(str_split(as.character(i), pattern = "")[[1]])
+  is_increasing <- all(i_splt >= lag(i_splt), na.rm = T)
+  is_decreasing <- all(i_splt >= lead(i_splt), na.rm = T)
+  is_bouncy <- !any(c(is_increasing, is_decreasing))
+  
+  # Append it if it's bouncy
+  if (is_bouncy) {
+    bouncy_nums <- c(bouncy_nums, i)
+  }
+  
+  # Check the proportion of bouncy numbers
+  # Use i + 1 because we've checked all the numbers up to and including i
+  bouncy_prop <- length(bouncy_nums) / i
+  prop_is_exact <- bouncy_prop == exact_prop
+  
+}
+
+i
+
 # Problem 145 - How many reversible numbers are there below one-bi --------
 
 # Some positive integers n have the property that the sum [ n + reverse(n) ] 
