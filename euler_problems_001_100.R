@@ -106,6 +106,48 @@ three_digit_combos %>%
 
 divis_by_up_to <- 20
 
+primes_below <- sieve_of_eratosthenes(divis_by_up_to)
+
+prod(primes_below)
+
+answ_10 <- prod(c(5,7,8,9))
+
+answ_10 %% 1:10
+
+answ_20 <- prod(nums_left_to_check) / 1000
+
+answ_20 %% 1:20
+
+# latest wrong answers
+# 698377680
+
+
+# Don't need to check every number up to divis_by_up_to, just the ones that are
+# not divisors of others in the set
+nums_left_to_check <- 1:divis_by_up_to
+for (j in 1:divis_by_up_to) {
+  if (sum(nums_left_to_check %% j == 0) > 1) {
+    nums_left_to_check <- nums_left_to_check[nums_left_to_check != j]
+  }
+}
+
+common_multiples <- data.frame(n = 1:100000)
+for (i in nums_left_to_check) {
+  common_multiples <- common_multiples %>% 
+    mutate(UQ(as.character(i)) := i * n)
+}
+
+common_multiples %>% 
+  gather(mult_of, multiple, -n) %>% 
+  filter(multiple %% divis_by_up_to == 0) %>% 
+  # Count how many times each multiple shows up
+  group_by(multiple) %>% 
+  summarise(n_divisors = n()) %>% 
+  # If it shows up for every divisor, then it wins!
+  filter(n_divisors == divis_by_up_to) %>% 
+  pull(multiple) %>% 
+  min()
+
 # Set starting values
 number <- 0
 found_it <- FALSE
@@ -116,14 +158,8 @@ while (!found_it & number < 2000000) {
   number <- number + divis_by_up_to
   
   message(number)
-  
-  # # Check if the number is divisible by each required number - method A
-  # quotients <- number / (1:divis_by_up_to)
-  # 
-  # integer_quotients <- number %/% (1:divis_by_up_to)
-  # 
-  # found_it <- all(quotients == integer_quotients)
-  # Check if the number is divisible by each required number - method B
+
+  # Check if the number is divisible by each required number
   remainders <- number %% (1:divis_by_up_to)
   
   found_it <- all(remainders == 0)
@@ -282,6 +318,25 @@ data.frame(a = 1:try_up_to) %>%
 #
 # Find the sum of all the primes below two million.
 
+find_below <- 2000000
+
+# Need a list of all primes up to sqrt(n)
+pr <- sieve_of_eratosthenes(ceiling(sqrt(find_below)))
+
+# Start with a list of everything to test less than our number
+whats_left <- 2:(find_below - 1)
+
+# Remove all multiples of primes 
+for (p in pr) {
+  
+  multiples_of_prime <- seq(from = 2 * p, to = find_below, by = p)
+  whats_left <- whats_left[!(whats_left %in% multiples_of_prime)]
+  
+}
+
+sum(whats_left)
+
+# 142913828922 - CORRECT!
 
 # Problem 11 - Largest product in a grid ----------------------------------
 
@@ -1350,6 +1405,107 @@ for (i in 1:999999) {
 sum(db_pals)
 
 
+# Problem 37 - Truncatable primes -----------------------------------------
+
+# The number 3797 has an interesting property. Being prime itself, it is 
+# possible to continuously remove digits from left to right, and remain prime at 
+# each stage: 3797, 797, 97, and 7. Similarly we can work from right to left: 
+# 3797, 379, 37, and 3.
+# 
+# Find the sum of the only eleven primes that are both truncatable from left to 
+# right and right to left.
+# 
+# NOTE: 2, 3, 5, and 7 are not considered to be truncatable primes.
+
+primes_up_to_n <- sieve_of_eratosthenes(50000)
+
+trunc_primes <- data.frame(p = primes_up_to_n) %>% 
+  filter(p > 7) %>% 
+  mutate(scale = case_when(p < 100 ~ 10,
+                           p < 1000 ~ 100,
+                           p < 10000 ~ 1000,
+                           p < 100000 ~ 10000),
+         # Truncate by dropping digits from the left
+         drop_l1 = p - (floor(p / scale) * scale),
+         drop_l2 = drop_l1 - if_else(scale > 10,
+                                     (floor(drop_l1 / (scale / 10)) * (scale / 10)),
+                                     NA_real_),
+         drop_l3 = drop_l2 - if_else(scale > 100,
+                                     (floor(drop_l2 / (scale / 100)) * (scale / 100)),
+                                     NA_real_),
+         drop_l4 = drop_l2 - if_else(scale > 1000,
+                                     (floor(drop_l2 / (scale / 1000)) * (scale / 1000)),
+                                     NA_real_),
+         # Truncate by dropping digits from the left
+         drop_r1 = floor(p / 10),
+         drop_r2 = if_else(scale > 10, floor(p / 100), NA_real_),
+         drop_r3 = if_else(scale > 100, floor(p / 1000), NA_real_),
+         drop_r4 = if_else(scale > 1000, floor(p / 10000), NA_real_))
+
+trunc_primes %>% 
+  gather(key, value, starts_with("drop")) %>% 
+  filter(!is.na(value)) %>% 
+  mutate(value_is_prime = is_prime(value, primes_up_to_n)) %>% 
+  group_by(p) %>% 
+  summarise(all_still_p = all(value_is_prime)) %>% 
+  filter(all_still_p) %>% 
+  pull(p) %>% 
+  sum()
+
+
+# Problem 39 - Integer right triangles ------------------------------------
+
+# If p is the perimeter of a right angle triangle with integral length sides, 
+# {a,b,c}, there are exactly three solutions for p = 120.
+# 
+# {20,48,52}, {24,45,51}, {30,40,50}
+# 
+# For which value of p ≤ 1000, is the number of solutions maximised?
+
+# Test each value of a with two equations, two unknowns
+# a + b + c = p   --> b = p - a - c
+# a^2 + b^2 = c^2 --> a^2 + (p - a - c)^2 = c^2
+#                 --> a^2 + (p-a)^2 - 2c*(p-a) + c^2 = c^2
+#                 --> a^2 + (p-a)^2 - 2c*(p-a) = 0
+#                 --> ((a^2 + (p-a)^2) / (p-a)) / 2 = c
+
+num_int_tris <- c()
+for (p in 3:1000) {
+  
+  # Find all the integer triangles for p
+  int_triangles <- c()
+  for (a in 1:((p / 2) - 1)) {
+    
+    # Calculate b and c based on algebra
+    c <- ((a^2 + (p-a)^2) / (p-a)) / 2 
+    b <- p - a - c
+    
+    # Check if all are integers
+    all_ints <- b == round(b) & c == round(c)
+    
+    # Add the triangle if it's integer-sided
+    if (all_ints) {
+      int_triangles <- int_triangles %>% 
+        bind_rows(data.frame(matrix(sort(c(a,b,c)), nrow = 1))) %>% 
+        distinct()
+    }
+  }
+  
+  # Count the number of integer-sided triangles
+  n <- if_else(is.null(nrow(int_triangles)), 
+               as.integer(0), 
+               nrow(int_triangles))
+  
+  num_int_tris <- num_int_tris %>% 
+    bind_rows(data.frame(p, n))
+  
+}
+
+num_int_tris %>% 
+  filter(n == max(n)) %>% 
+  pull(p)
+
+# 840 - CORRECT!
 
 # Problem 58 - Spiral primes ----------------------------------------------
 

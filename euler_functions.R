@@ -55,10 +55,19 @@ is_prime <- function(n, primes) {
   # (i.e. that the division leaves no remainder). If so, then n is composite. 
   # Otherwise, it is prime.
   
-  primes_lt_sqrtn <- primes[primes <= sqrt(n)]
-  
-  !any(n %% primes_lt_sqrtn == 0)
-  
+  out <- c()
+  for (i in n) {
+    primes_lt_sqrtn <- primes[primes <= sqrt(i)]
+    
+    if (i == 1) {
+      out <- c(out, FALSE)
+    } else {
+      out <- c(out, !any(i %% primes_lt_sqrtn == 0))
+    }
+    
+  }
+
+  out
 }
 
 

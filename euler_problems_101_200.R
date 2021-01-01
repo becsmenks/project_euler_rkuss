@@ -197,6 +197,37 @@ while (!prop_is_exact & i < 500000) {
 
 i
 
+
+# Problem 120 - Square remainders -----------------------------------------
+
+
+# Let r be the remainder when (a−1)^n + (a+1)^n is divided by a^2.
+# 
+# For example, if a = 7 and n = 3, then r = 42: 63 + 83 = 728 ≡ 42 mod 49. And 
+# as n varies, so too will r, but for a = 7 it turns out that rmax = 42.
+# 
+# For 3 ≤ a ≤ 1000, find ∑ rmax.
+
+
+a <- 3:1000
+n <- 0:10
+
+sq_rem <- data.frame(a) %>% 
+  merge(data.frame(n)) %>% 
+  mutate(q = (a-1)^n + (a+1)^n,
+         a2 = a^2,
+         rem = q %% a2)
+
+sq_rem %>% 
+  group_by(a) %>% 
+  summarise(rmax = max(rem)) %>% 
+  ungroup() %>% 
+  pull(rmax) %>% 
+  sum()
+
+
+
+
 # Problem 145 - How many reversible numbers are there below one-bi --------
 
 # Some positive integers n have the property that the sum [ n + reverse(n) ] 
