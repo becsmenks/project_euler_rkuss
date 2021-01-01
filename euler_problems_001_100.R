@@ -106,68 +106,58 @@ three_digit_combos %>%
 
 divis_by_up_to <- 20
 
-primes_below <- sieve_of_eratosthenes(divis_by_up_to)
-
-prod(primes_below)
-
-answ_10 <- prod(c(5,7,8,9))
-
-answ_10 %% 1:10
-
-answ_20 <- prod(nums_left_to_check) / 1000
-
-answ_20 %% 1:20
-
-# latest wrong answers
-# 698377680
-
-
-# Don't need to check every number up to divis_by_up_to, just the ones that are
-# not divisors of others in the set
-nums_left_to_check <- 1:divis_by_up_to
-for (j in 1:divis_by_up_to) {
-  if (sum(nums_left_to_check %% j == 0) > 1) {
-    nums_left_to_check <- nums_left_to_check[nums_left_to_check != j]
+# Make a data frame that stores the maximum number of times each prime shows up
+# in the prime factorization of each number up to our number
+prime_times <- c()
+for (k in 2:divis_by_up_to) {
+  
+  # Start with prime factorization of every number up to 10 or 20
+  prime_fact_k <- c()
+  n <- k
+  
+  # 1) While n is divisible by 2, print 2 and divide n by 2.
+  while (n %% 2 == 0) {
+    prime_fact_k <- c(prime_fact_k, 2)
+    n <- n / 2
   }
-}
-
-common_multiples <- data.frame(n = 1:100000)
-for (i in nums_left_to_check) {
-  common_multiples <- common_multiples %>% 
-    mutate(UQ(as.character(i)) := i * n)
-}
-
-common_multiples %>% 
-  gather(mult_of, multiple, -n) %>% 
-  filter(multiple %% divis_by_up_to == 0) %>% 
-  # Count how many times each multiple shows up
-  group_by(multiple) %>% 
-  summarise(n_divisors = n()) %>% 
-  # If it shows up for every divisor, then it wins!
-  filter(n_divisors == divis_by_up_to) %>% 
-  pull(multiple) %>% 
-  min()
-
-# Set starting values
-number <- 0
-found_it <- FALSE
-
-while (!found_it & number < 2000000) {
   
-  # Increment number
-  number <- number + divis_by_up_to
+  # 2) After step 1, n must be odd. Now start a loop from i = 3 to square root 
+  # of n. While i divides n, print i and divide n by i. After i fails to divide 
+  # n, increment i by 2 and continue.
+  if (n > 2) {
+    for (i in seq(from = 3, to = max(sqrt(n),3), by = 2)) {
+      while (n %% 3 == 0) {
+        prime_fact_k <- c(prime_fact_k, i)
+        n <- n / i
+      }
+    }
+  }
   
-  message(number)
-
-  # Check if the number is divisible by each required number
-  remainders <- number %% (1:divis_by_up_to)
+  # 3) If n is a prime number and is greater than 2, then n will not become 1 by 
+  # above two steps. So print n if it is greater than 2.
+  if (n > 2) prime_fact_k <- c(prime_fact_k, n)
   
-  found_it <- all(remainders == 0)
+  prime_fact_k_freq <- data.frame(table(prime_fact_k)) %>% 
+    mutate(k = k) %>% 
+    select(k, p = prime_fact_k, freq = Freq)
+  
+  prime_times <- bind_rows(prime_times,
+                           prime_fact_k_freq)
   
 }
 
-number
+# Find the maximum number of times each prime appears and multiply them all 
+# together that many times
+prime_times %>% 
+  group_by(p) %>% 
+  summarise(freq = max(freq)) %>% 
+  ungroup() %>% 
+  mutate(p2 = as.numeric(as.character(p)),
+         p3 = p2^freq) %>% 
+  pull(p3) %>% 
+  prod()
 
+# 232792560 - CORRECT!
 
 # Problem 6 - Sum square difference ---------------------------------------
 
@@ -213,26 +203,6 @@ first_primes[10001]
 # The four adjacent digits in the 1000-digit number that have the greatest
 # product are 9 × 9 × 8 × 9 = 5832.
 #
-# 73167176531330624919225119674426574742355349194934
-# 96983520312774506326239578318016984801869478851843
-# 85861560789112949495459501737958331952853208805511
-# 12540698747158523863050715693290963295227443043557
-# 66896648950445244523161731856403098711121722383113
-# 62229893423380308135336276614282806444486645238749
-# 30358907296290491560440772390713810515859307960866
-# 70172427121883998797908792274921901699720888093776
-# 65727333001053367881220235421809751254540594752243
-# 52584907711670556013604839586446706324415722155397
-# 53697817977846174064955149290862569321978468622482
-# 83972241375657056057490261407972968652414535100474
-# 82166370484403199890008895243450658541227588666881
-# 16427171479924442928230863465674813919123162824586
-# 17866458359124566529476545682848912883142607690042
-# 24219022671055626321111109370544217506941658960408
-# 07198403850962455444362981230987879927244284909188
-# 84580156166097919133875499200524063689912560717606
-# 05886116467109405077541002256983155200055935729725
-# 71636269561882670428252483600823257530420752963450
 #
 # Find the thirteen adjacent digits in the 1000-digit number that have the
 # greatest product. What is the value of this product?
@@ -342,27 +312,6 @@ sum(whats_left)
 
 # In the 20×20 grid below, four numbers along a diagonal line have been marked
 # in red.
-#
-# 08 02 22 97 38 15 00 40 00 75 04 05 07 78 52 12 50 77 91 08
-# 49 49 99 40 17 81 18 57 60 87 17 40 98 43 69 48 04 56 62 00
-# 81 49 31 73 55 79 14 29 93 71 40 67 53 88 30 03 49 13 36 65
-# 52 70 95 23 04 60 11 42 69 24 68 56 01 32 56 71 37 02 36 91
-# 22 31 16 71 51 67 63 89 41 92 36 54 22 40 40 28 66 33 13 80
-# 24 47 32 60 99 03 45 02 44 75 33 53 78 36 84 20 35 17 12 50
-# 32 98 81 28 64 23 67 10 26 38 40 67 59 54 70 66 18 38 64 70
-# 67 26 20 68 02 62 12 20 95 63 94 39 63 08 40 91 66 49 94 21
-# 24 55 58 05 66 73 99 26 97 17 78 78 96 83 14 88 34 89 63 72
-# 21 36 23 09 75 00 76 44 20 45 35 14 00 61 33 97 34 31 33 95
-# 78 17 53 28 22 75 31 67 15 94 03 80 04 62 16 14 09 53 56 92
-# 16 39 05 42 96 35 31 47 55 58 88 24 00 17 54 24 36 29 85 57
-# 86 56 00 48 35 71 89 07 05 44 44 37 44 60 21 58 51 54 17 58
-# 19 80 81 68 05 94 47 69 28 73 92 13 86 52 17 77 04 89 55 40
-# 04 52 08 83 97 35 99 16 07 97 57 32 16 26 26 79 33 27 98 66
-# 88 36 68 87 57 62 20 72 03 46 33 67 46 55 12 32 63 93 53 69
-# 04 42 16 73 38 25 39 11 24 94 72 18 08 46 29 32 40 62 76 36
-# 20 69 36 41 72 30 23 88 34 62 99 69 82 67 59 85 74 04 36 16
-# 20 73 35 29 78 31 90 01 74 31 49 71 48 86 81 16 23 57 05 54
-# 01 70 54 71 83 51 54 69 16 92 33 48 61 43 52 01 89 19 67 48
 #
 # The product of these numbers is 26 × 63 × 78 × 14 = 1788696.
 #
