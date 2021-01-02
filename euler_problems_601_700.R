@@ -57,3 +57,19 @@ fib_seq <- generate_fib_seq(1e20)
 fib_seq_df <- data.frame(i = (1:length(fib_seq)) + 1,
                          fi = fib_seq)
 
+
+# Problem 694 - Cube-full Divisors ----------------------------------------
+
+# A positive integer n is considered cube-full, if for every prime p that 
+# divides n, so does p^3. Note that 1 is considered cube-full.
+# 
+# Let s(n) be the function that counts the number of cube-full divisors of n. 
+# For example, 1, 8 and 16 are the three cube-full divisors of 16. Therefore, 
+# s(16) = 3.
+# 
+# Let S(n) represent the summatory function of s(n), that is 
+# S(n) = SUM(i=1..n) s(i)
+# 
+# You are given S(16) = 19, S(100) = 126 and S(1000) = 13344.
+# 
+# Find S(10^18).
