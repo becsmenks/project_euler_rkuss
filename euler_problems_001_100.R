@@ -558,7 +558,12 @@ grid %>%
 # NOTE: Once the chain starts the terms are allowed to go above one million.
 
 collatz_lengths <- data.frame()
-for (starting_num in 999999:4) {
+all_collatz_terms <- c()
+for (starting_num in 999999:1) {
+  
+  if (starting_num %in% all_collatz_terms) next
+  
+  message(starting_num)
   
   # Initialize everything
   i <- starting_num
@@ -586,6 +591,10 @@ for (starting_num in 999999:4) {
   collatz_lengths <- bind_rows(collatz_lengths,
                                data.frame(start_n = starting_num,
                                           len = length(collatz_seq)))
+  
+  # Save all numbers appearing in sequence, we'll skip these later on becase
+  # they can't be the longest sequences
+  all_collatz_terms <- unique(c(all_collatz_terms, collatz_seq))
   
 }
 
@@ -1456,8 +1465,65 @@ num_int_tris %>%
 
 # 840 - CORRECT!
 
-# Problem 58 - Spiral primes ----------------------------------------------
 
+# Problem 42 - Coded triangle numbers -------------------------------------
+
+# The nth term of the sequence of triangle numbers is given by, tn = ½n(n+1); so 
+# the first ten triangle numbers are:
+#   
+#   1, 3, 6, 10, 15, 21, 28, 36, 45, 55, ...
+# 
+# By converting each letter in a word to a number corresponding to its 
+# alphabetical position and adding these values we form a word value. For 
+# example, the word value for SKY is 19 + 11 + 25 = 55 = t10. If the word value 
+# is a triangle number then we shall call the word a triangle word.
+# 
+# Using words.txt (right click and 'Save Link/Target As...'), a 16K text file 
+# containing nearly two-thousand common English words, how many are triangle 
+# words?
+
+words <- read.csv('~/git/project_euler_rkuss/euler_data/p042_words.txt',
+                  header = F) %>% 
+  gather(key, word, starts_with("V")) %>% 
+  select(word)
+
+# Create lookup of letter values
+letter_values <- data.frame(letter = str_to_upper(letters),
+                            letter_value = 1:length(letters))
+
+# Find out how many columns are needed to split up the longest name
+split_into <- words %>% 
+  mutate(n_char = str_length(word)) %>% 
+  pull(n_char) %>% 
+  max()
+
+# Calculate word values
+words_values <- words %>% 
+  mutate(word_splt = str_split(word, "")) %>% 
+  separate(word_splt, into = as.character(1:split_into), sep = ",") %>% 
+  gather(position, letter, `1`:as.character(split_into)) %>% 
+  mutate(letter = str_remove_all(letter, 'c\\(\\"'),
+         letter = str_remove_all(letter, '\\"\\)'),
+         letter = str_remove_all(letter, '\\"'),
+         letter = str_remove_all(letter, ' ')) %>% 
+  filter(!is.na(letter)) %>% 
+  left_join(letter_values, by = "letter") %>% 
+  group_by(word) %>% 
+  summarise(word_value = sum(letter_value)) %>% 
+  ungroup()
+
+# Find all the triangle numbers
+tri_nums <- data.frame(n = 1:500) %>%
+  mutate(tn = (1 / 2) * n * (n + 1))
+
+# Check if words are triangle words
+words_values %>% 
+  filter(word_value %in% tri_nums$tn) %>% 
+  nrow()
+
+# 162 - CORRECT!
+
+# Problem 58 - Spiral primes ----------------------------------------------
 
 # Starting with 1 and spiralling anticlockwise in the following way, a square 
 # spiral with side length 7 is formed.
