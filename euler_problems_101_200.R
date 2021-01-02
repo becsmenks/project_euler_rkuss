@@ -167,7 +167,7 @@ triangles %>%
 # Find the least number for which the proportion of bouncy numbers is exactly 
 # 99%.
 
-exact_prop <- 0.99
+exact_prop <- 0.90
 
 bouncy_nums <- c()
 i <- 0
@@ -189,13 +189,36 @@ while (!prop_is_exact & i < 500000) {
   }
   
   # Check the proportion of bouncy numbers
-  # Use i + 1 because we've checked all the numbers up to and including i
   bouncy_prop <- length(bouncy_nums) / i
   prop_is_exact <- bouncy_prop == exact_prop
+  
+  #message(paste0("i = ", i, ", proportion bouncy = ", bouncy_prop))
   
 }
 
 i
+
+
+# Problem 116 - Red, green or blue tiles ----------------------------------
+
+# A row of five grey square tiles is to have a number of its tiles replaced with 
+# coloured oblong tiles chosen from red (length two), green (length three), or 
+# blue (length four).
+# 
+# If red tiles are chosen there are exactly seven ways this can be done.
+# 
+# If green tiles are chosen there are three ways.
+# 
+# And if blue tiles are chosen there are two ways.
+# 
+# Assuming that colours cannot be mixed there are 7 + 3 + 2 = 12 ways of 
+# replacing the grey tiles in a row measuring five units in length.
+# 
+# How many different ways can the grey tiles in a row measuring fifty units in 
+# length be replaced if colours cannot be mixed and at least one coloured tile 
+# must be used?
+#   
+# NOTE: This is related to Problem 117.
 
 
 # Problem 120 - Square remainders -----------------------------------------

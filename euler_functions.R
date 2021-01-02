@@ -76,23 +76,19 @@ is_prime <- function(n, primes) {
 sum_digits <- function(n) {
   
   # Initialize everything
-  remaining_digits <- n 
-  all_digits <- c()
+  all_digits_sum <- 0
   
   # Pick off each digit
-  while (remaining_digits > 0) {
+  while (n > 0) {
     
-    # Pull out the right-most digit
-    rightmost_digit <- remaining_digits - floor(remaining_digits / 10) * 10
-    
-    # Save out each digit
-    all_digits <- c(all_digits, rightmost_digit)
+    # Pull out the right-most digit and add to total
+    all_digits_sum <- all_digits_sum + (n %% 10)
     
     # Update the remaining digits
-    remaining_digits <- floor(remaining_digits / 10)
+    n <- n %/% 10
   }
   
-  sum(all_digits)
+  all_digits_sum
 }
 
 # Merge n times
