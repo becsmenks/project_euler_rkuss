@@ -715,26 +715,114 @@ nums_and_words %>%
 # 
 # Find the maximum total from top to bottom of the triangle below:
 #   
-# 75
-# 95 64
-# 17 47 82
-# 18 35 87 10
-# 20 04 82 47 65
-# 19 01 23 75 03 34
-# 88 02 77 73 07 63 67
-# 99 65 04 28 06 16 70 92
-# 41 41 26 56 83 40 80 70 33
-# 41 48 72 33 47 32 37 16 94 29
-# 53 71 44 65 25 43 91 52 97 51 14
-# 70 11 33 28 77 73 17 78 39 68 17 57
-# 91 71 52 38 17 14 91 43 58 50 27 29 48
-# 63 66 04 68 89 53 67 30 73 16 69 87 40 31
-# 04 62 98 27 23 09 70 98 73 93 38 53 60 04 23
-# 
 # NOTE: As there are only 16384 routes, it is possible to solve this problem by 
 # trying every route. However, Problem 67, is the same challenge with a triangle 
 # containing one-hundred rows; it cannot be solved by brute force, and requires 
 # a clever method! ;o)
+
+tri <- matrix(c(3, 0, 0, 0,
+                7, 4, 0, 0,
+                2, 4, 6, 0,
+                8, 5, 9, 3),
+              nrow = 4,
+              byrow = TRUE)
+
+tri <- matrix(c(75, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+                95, 64, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+                17, 47, 82, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+                18, 35, 87, 10, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+                20, 04, 82, 47, 65, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+                19, 01, 23, 75, 03, 34, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+                88, 02, 77, 73, 07, 63, 67, 00, 00, 00, 00, 00, 00, 00, 00,
+                99, 65, 04, 28, 06, 16, 70, 92, 00, 00, 00, 00, 00, 00, 00,
+                41, 41, 26, 56, 83, 40, 80, 70, 33, 00, 00, 00, 00, 00, 00,
+                41, 48, 72, 33, 47, 32, 37, 16, 94, 29, 00, 00, 00, 00, 00,
+                53, 71, 44, 65, 25, 43, 91, 52, 97, 51, 14, 00, 00, 00, 00, 
+                70, 11, 33, 28, 77, 73, 17, 78, 39, 68, 17, 57, 00, 00, 00, 
+                91, 71, 52, 38, 17, 14, 91, 43, 58, 50, 27, 29, 48, 00, 00, 
+                63, 66, 04, 68, 89, 53, 67, 30, 73, 16, 69, 87, 40, 31, 00,
+                04, 62, 98, 27, 23, 09, 70, 98, 73, 93, 38, 53, 60, 04, 23),
+              nrow = 15,
+              byrow = T)
+
+# Set up data frame with decision variables and their values
+tri_df <- data.frame(tri) %>% 
+  tibble::rownames_to_column("row") %>% 
+  gather(col, value, starts_with("X")) %>% 
+  mutate(col = str_remove(col, "X"),
+         d_var = paste0(row, "-", col),
+         row = as.numeric(row),
+         col = as.numeric(col)) %>% 
+  arrange(d_var) 
+
+# Create objective function coefficients
+obj_coeff <- tri_df %>% 
+  pull(value)
+
+# Constraint 1 - sum of all rows is exactly 1
+constr1_df <- tri_df %>% 
+  mutate(constr_id = as.character(row),
+         constr_val = 1,
+         dir = "=",
+         rhs = 1) %>% 
+  select(d_var, dir, rhs, constr_id, constr_val) %>% 
+  spread(d_var, constr_val) %>% 
+  replace(is.na(.), 0)
+
+# Constraint 2 - can only pick adjacent cells
+constr2_df <- tri_df %>% 
+  filter(row > 1) %>% 
+  rename(constr_id = d_var) %>% 
+  mutate(cell_constr = paste0(row, "-", col),
+         cell_above_right = paste0(row - 1, "-", col),
+         cell_above_left = paste0(row - 1, "-", col - 1)) %>% 
+  gather(cell, d_var, starts_with("cell")) %>% 
+  filter(d_var %in% tri_df$d_var) %>% 
+  mutate(constr_val = if_else(cell == "cell_constr", 1, -1),
+         dir = "<=",
+         rhs = 0) %>% 
+  select(d_var, dir, rhs, constr_id, constr_val) %>% 
+  spread(d_var, constr_val) %>% 
+  replace(is.na(.), 0)
+
+# Constraint 3 - don't pick the upper diagonal
+constr3_df <- tri_df %>% 
+  mutate(constr_id = d_var,
+         constr_val = if_else(col > row, 1, 0),
+         dir = "=",
+         rhs = 0) %>% 
+  spread(d_var, constr_val) %>% 
+  filter(col > row) %>% 
+  select(-c(row, col, value)) %>% 
+  replace(is.na(.), 0)
+
+# Combine constraint data frames
+constr_df <- bind_rows(constr1_df,
+                       constr2_df,
+                       constr3_df)
+
+# Create constraint matrix, direction, and rhs
+constr_mat <- constr_df %>% 
+  select(all_of(tri_df$d_var)) %>% 
+  as.matrix()
+
+constr_dir <- constr_df %>% 
+  pull(dir)
+
+constr_rhs <- constr_df %>% 
+  pull(rhs)
+
+# Solve the linear program
+soln <- lp(direction = "max",
+           objective.in = obj_coeff,
+           const.mat = constr_mat,
+           const.dir = constr_dir,
+           const.rhs = constr_rhs,
+           all.bin = T)
+
+soln$objval
+
+# 1074 - CORRECT!
 
 # Problem 19 - Counting Sundays -------------------------------------------
 
@@ -1586,4 +1674,164 @@ side_length
 # 26241 - CORRECT!
 
 
+# Problem 66 - Diophantine equation ---------------------------------------
 
+# Consider quadratic Diophantine equations of the form:
+#   
+#   x2 – Dy2 = 1
+# 
+# For example, when D=13, the minimal solution in x is 6492 – 13×1802 = 1.
+# 
+# It can be assumed that there are no solutions in positive integers when D is 
+# square.
+# 
+# By finding minimal solutions in x for D = {2, 3, 5, 6, 7}, we obtain the 
+# following:
+#   
+#   3^2 – 2×2^2 = 1
+#   2^2 – 3×1^2 = 1
+#   9^2 – 5×4^2 = 1
+#   5^2 – 6×2^2 = 1
+#   8^2 – 7×3^2 = 1
+# 
+# Hence, by considering minimal solutions in x for D ≤ 7, the largest x is 
+# obtained when D=5.
+# 
+# Find the value of D ≤ 1000 in minimal solutions of x for which the largest 
+# value of x is obtained.
+
+# Brute force method
+diophantine <- data.frame()
+for (D in 2:100) {
+  
+  # Skip squares
+  if (sqrt(D) == floor(sqrt(D))) next
+  
+  # Find the minimal solution of x
+  no_int_soln <- TRUE
+  x <- 1
+  while (no_int_soln) {
+    x <- x + 1
+    
+    y <- sqrt(((x^2) - 1) / D) 
+    
+    no_int_soln <- y != floor(y)
+  }
+  
+  # Save information
+  diophantine <- diophantine %>% 
+    bind_rows(data.frame(D, x, y))
+  
+}
+
+# This works for the example, but is too slow to solve the actual problem
+diophantine %>% 
+  filter(x == max(x)) %>% 
+  pull(D)
+
+
+# Problem 67 - Maximum path sum II ----------------------------------------
+
+# By starting at the top of the triangle below and moving to adjacent numbers on 
+# the row below, the maximum total from top to bottom is 23.
+# 
+# 3
+# 7 4
+# 2 4 6
+# 8 5 9 3
+# 
+# That is, 3 + 7 + 4 + 9 = 23.
+# 
+# Find the maximum total from top to bottom in triangle.txt (right click and 
+# 'Save Link/Target As...'), a 15K text file containing a triangle with 
+# one-hundred rows.
+# 
+# NOTE: This is a much more difficult version of Problem 18. It is not possible 
+# to try every route to solve this problem, as there are 299 altogether! If you 
+# could check one trillion (1012) routes every second it would take over twenty 
+# billion years to check them all. There is an efficient algorithm to solve it. 
+# ;o)
+
+tri <- read.csv('~/git/project_euler_rkuss/euler_data/p067_triangle.txt',
+                header = FALSE) %>% 
+  separate(V1, as.character(1:100), sep = " ") %>% 
+  mutate_all(as.numeric) %>% 
+  replace(is.na(.), 0) %>% 
+  as.matrix()
+
+# Set up data frame with decision variables and their values
+tri_df <- data.frame(tri) %>% 
+  tibble::rownames_to_column("row") %>% 
+  gather(col, value, starts_with("X")) %>% 
+  mutate(col = str_remove(col, "X"),
+         d_var = paste0(row, "-", col),
+         row = as.numeric(row),
+         col = as.numeric(col)) %>% 
+  arrange(d_var) 
+
+# Create objective function coefficients
+obj_coeff <- tri_df %>% 
+  pull(value)
+
+# Constraint 1 - sum of all rows is exactly 1
+constr1_df <- tri_df %>% 
+  mutate(constr_id = as.character(row),
+         constr_val = 1,
+         dir = "=",
+         rhs = 1) %>% 
+  select(d_var, dir, rhs, constr_id, constr_val) %>% 
+  spread(d_var, constr_val) %>% 
+  replace(is.na(.), 0)
+
+# Constraint 2 - can only pick adjacent cells
+constr2_df <- tri_df %>% 
+  filter(row > 1) %>% 
+  rename(constr_id = d_var) %>% 
+  mutate(cell_constr = paste0(row, "-", col),
+         cell_above_right = paste0(row - 1, "-", col),
+         cell_above_left = paste0(row - 1, "-", col - 1)) %>% 
+  gather(cell, d_var, starts_with("cell")) %>% 
+  filter(d_var %in% tri_df$d_var) %>% 
+  mutate(constr_val = if_else(cell == "cell_constr", 1, -1),
+         dir = "<=",
+         rhs = 0) %>% 
+  select(d_var, dir, rhs, constr_id, constr_val) %>% 
+  spread(d_var, constr_val) %>% 
+  replace(is.na(.), 0)
+
+# Constraint 3 - don't pick the upper diagonal
+constr3_df <- tri_df %>% 
+  mutate(constr_id = d_var,
+         constr_val = if_else(col > row, 1, 0),
+         dir = "=",
+         rhs = 0) %>% 
+  spread(d_var, constr_val) %>% 
+  filter(col > row) %>% 
+  select(-c(row, col, value)) %>% 
+  replace(is.na(.), 0)
+
+# Combine constraint data frames
+constr_df <- bind_rows(constr1_df,
+                       constr2_df,
+                       constr3_df)
+
+# Create constraint matrix, direction, and rhs
+constr_mat <- constr_df %>% 
+  select(all_of(tri_df$d_var)) %>% 
+  as.matrix()
+
+constr_dir <- constr_df %>% 
+  pull(dir)
+
+constr_rhs <- constr_df %>% 
+  pull(rhs)
+
+# Solve the linear program
+soln <- lp(direction = "max",
+           objective.in = obj_coeff,
+           const.mat = constr_mat,
+           const.dir = constr_dir,
+           const.rhs = constr_rhs,
+           all.bin = T)
+
+soln$objval
