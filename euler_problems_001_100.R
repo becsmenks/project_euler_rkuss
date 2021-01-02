@@ -2017,3 +2017,37 @@ soln <- lp(direction = "max",
            all.bin = T)
 
 soln$objval
+
+
+
+# Problem 79 - Passcode derivation ----------------------------------------
+
+# A common security method used for online banking is to ask the user for three 
+# random characters from a passcode. For example, if the passcode was 531278, 
+# they may ask for the 2nd, 3rd, and 5th characters; the expected reply would 
+# be: 317.
+# 
+# The text file, keylog.txt, contains fifty successful login attempts.
+# 
+# Given that the three characters are always asked for in order, analyse the 
+# file so as to determine the shortest possible secret passcode of unknown 
+# length.
+
+keylog <- read.csv("~/git/project_euler_rkuss/euler_data/p079_keylog.txt",
+                   header = F) %>% 
+  rename(code = V1) %>% 
+  distinct()
+
+keylog_ordered_pairs <- keylog %>% 
+  mutate(op1 = str_sub(code, 1, 2),
+         op2 = str_sub(code, 2, 3),
+         op3 = paste0(str_sub(code, 1, 1), str_sub(code, 3, 3))) %>% 
+  gather(key, op, starts_with("op")) %>% 
+  distinct(op) %>% 
+  arrange(op)
+
+# Did this one by hand based on all the two-digit ordered pairs that were
+# required
+
+# 73162890 - CORRECT!
+
