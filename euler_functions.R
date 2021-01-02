@@ -132,3 +132,15 @@ generate_fib_seq <- function(x) {
   }
   fib_seq
 }
+
+
+# Check number of divisors
+get_n_div <- function(x) {
+  out <- c()
+  for (i in x) {
+    out <- c(out, length((1:i)[i %% 1:i == 0]))
+  }
+  out
+}
+
+

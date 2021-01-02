@@ -181,7 +181,6 @@ data.frame(number = 1:100) %>%
 
 # 25164150 - CORRECT!
 
-
 # Problem 7 - 10001st prime -----------------------------------------------
 
 # By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see t
@@ -196,7 +195,6 @@ first_primes <- sieve_of_eratosthenes(125000)
 first_primes[10001]
 
 # 104743 - CORRECT!
-
 
 # Problem 8 - Largest product in a series ---------------------------------
 
@@ -280,7 +278,6 @@ data.frame(a = 1:try_up_to) %>%
   pull(product)
 
 # 31875000 - CORRECT!
-
 
 # Problem 10 - Summation of primes ----------------------------------------
 
@@ -428,10 +425,25 @@ grid %>%
 # 15: 1,3,5,15
 # 21: 1,3,7,21
 # 28: 1,2,4,7,14,28
+# 
 # We can see that 28 is the first triangle number to have over five divisors.
 # 
 # What is the value of the first triangle number to have over five hundred 
 # divisors?
+
+# Start with a sequence of triangle numbers and calculate number of divisors
+tri_seq <- data.frame(n = 1:1000) %>% 
+  mutate(tn = cumsum(n),
+         n_div = get_n_div(tn))
+
+# Find the first one to have certain number of divisors
+# Works, bu too slow to scale
+over_n_divisors <- 500
+tri_seq %>% 
+  filter(n_div > over_n_divisors) %>% 
+  summarise(m = min(tn)) %>% 
+  pull(m)
+
 
 # Problem 13 - Large sum --------------------------------------------------
 
@@ -610,6 +622,12 @@ collatz_lengths %>%
 # 
 # How many such routes are there through a 20×20 grid?
 
+grid_dim <- 2
+
+# How many moves are required to reach the bottom corner?
+required_moves <- grid_dim * 2
+
+# At each move, you have two choices, unless you have reached an edge
 
 # Problem 16 - Power digit sum --------------------------------------------
 
@@ -882,6 +900,28 @@ sum_digits(n_factorial)
 # 
 # Evaluate the sum of all the amicable numbers under 10000.
 
+p <- sieve_of_eratosthenes(sqrt(10000) + 1)
+
+amic_num <- c()
+for (n in 2:9999) {
+  
+  # Skip primes, they have no divisors
+  if (is_prime(n, p)) next
+  # Skip any numbers already amicable
+  if (n %in% amic_num) next
+  
+  message(n)
+  
+  dn <- sum((1:(n-1))[n %% (1:(n-1)) == 0])
+  ddn <- sum((1:(dn-1))[dn %% (1:(dn-1)) == 0])
+  
+  if (n == ddn & n != dn) amic_num <- c(amic_num, n, dn)
+  
+}
+
+sum(amic_num)
+
+# 31626 - CORRECT!
 
 # Problem 22 - Names scores -----------------------------------------------
 
@@ -1554,6 +1594,60 @@ num_int_tris %>%
 # 840 - CORRECT!
 
 
+# Problem 40 - Champernowne's constant ------------------------------------
+
+# An irrational decimal fraction is created by concatenating the positive 
+# integers:
+#   
+#   0.123456789101112131415161718192021...
+# 
+# It can be seen that the 12th digit of the fractional part is 1.
+# 
+# If dn represents the nth digit of the fractional part, find the value of the 
+# following expression.
+# 
+# d1 × d10 × d100 × d1000 × d10000 × d100000 × d1000000
+
+
+# Count how many digits are made up of one-digit numbers, two-digit, ...
+contributions <- data.frame(n_digits = 1:7) %>% 
+  mutate(n_numbers = if_else(n_digits == 1, 9, 10^n_digits),
+         n_digits_contributed = n_digits * n_numbers,
+         n_digits_total = cumsum(n_digits_contributed))
+
+# Use this string to check the algorithm
+str_check <- paste0(1:1000000, collapse = "")
+
+# Already know the first two
+d <- c(1, 1)
+d_check <- c("1", "1")
+for (n in c(100, 1000, 10000, 100000, 1000000)) {
+  
+  dn <- contributions %>% 
+    mutate(is_bucket = n_digits_total >= n & lag(n_digits_total) < n,
+           digits_in = n - lag(n_digits_total),
+           numbers_in = floor(digits_in / n_digits),
+           winning_number = numbers_in + (10^(n_digits - 1) - 1),
+           prior_digits = numbers_in * n_digits,
+           winning_digit = digits_in - prior_digits + 1,
+           answer = str_sub(as.character(winning_number), 
+                            winning_digit, winning_digit)) %>% 
+    filter(is_bucket) %>% 
+    pull(answer) %>% 
+    as.numeric()
+  
+  d <- c(d, dn)
+  
+  d_check <- c(d_check, str_sub(str_check, n, n))
+  
+}
+
+# Turns out the algorithm is wrong, but it's super easy to brute force this one
+# using strings
+prod(as.numeric(d_check))
+
+# 210 - CORRECT!
+
 # Problem 42 - Coded triangle numbers -------------------------------------
 
 # The nth term of the sequence of triangle numbers is given by, tn = ½n(n+1); so 
@@ -1767,7 +1861,8 @@ tri_df <- data.frame(tri) %>%
          d_var = paste0(row, "-", col),
          row = as.numeric(row),
          col = as.numeric(col)) %>% 
-  arrange(d_var) 
+  arrange(d_var) %>% 
+  filter(row >= col)
 
 # Create objective function coefficients
 obj_coeff <- tri_df %>% 
@@ -1799,21 +1894,9 @@ constr2_df <- tri_df %>%
   spread(d_var, constr_val) %>% 
   replace(is.na(.), 0)
 
-# Constraint 3 - don't pick the upper diagonal
-constr3_df <- tri_df %>% 
-  mutate(constr_id = d_var,
-         constr_val = if_else(col > row, 1, 0),
-         dir = "=",
-         rhs = 0) %>% 
-  spread(d_var, constr_val) %>% 
-  filter(col > row) %>% 
-  select(-c(row, col, value)) %>% 
-  replace(is.na(.), 0)
-
 # Combine constraint data frames
 constr_df <- bind_rows(constr1_df,
-                       constr2_df,
-                       constr3_df)
+                       constr2_df)
 
 # Create constraint matrix, direction, and rhs
 constr_mat <- constr_df %>% 
