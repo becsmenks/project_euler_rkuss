@@ -249,7 +249,79 @@ sq_rem %>%
   sum()
 
 
+# Problem 124 - Ordered radicals ------------------------------------------
 
+# The radical of n, rad(n), is the product of the distinct prime factors of n. 
+# For example, 504 = 23 × 32 × 7, so rad(504) = 2 × 3 × 7 = 42.
+# 
+# If we calculate rad(n) for 1 ≤ n ≤ 10, then sort them on rad(n), and sorting 
+# on n if the radical values are equal, we get:
+#   
+# Unsorted       Sorted
+# n rad(n)       n rad(n) k
+# 1     1        1     1  1
+# 2     2        2     2  2
+# 3     3        4     2  3
+# 4     2        8     2  4
+# 5     5        3     3  5
+# 6     6        9     3  6 
+# 7     7        5     5  7
+# 8     2        6     6  8
+# 9     3        7     7  9
+# 10   10       10    10 10
+
+# Let E(k) be the kth element in the sorted n column; for example, E(4) = 8 and 
+# E(6) = 9.
+# 
+# If rad(n) is sorted for 1 ≤ n ≤ 100000, find E(10000).
+
+radicals <- c()
+for (n in 2:100000) {
+  
+  message(n)
+  
+  # Start with prime factorization of every number up to 10 or 20
+  prime_fact <- c()
+  n_orig <- n
+  
+  # 1) While n is divisible by 2, print 2 and divide n by 2.
+  while (n %% 2 == 0) {
+    prime_fact <- c(prime_fact, 2)
+    n <- n / 2
+  }
+  
+  # 2) After step 1, n must be odd. Now start a loop from i = 3 to square root 
+  # of n. While i divides n, print i and divide n by i. After i fails to divide 
+  # n, increment i by 2 and continue.
+  if (n > 2) {
+    for (i in seq(from = 3, to = max(sqrt(n),3), by = 2)) {
+      while (n %% i == 0) {
+        prime_fact <- c(prime_fact, i)
+        n <- n / i
+      }
+    }
+  }
+  
+  # 3) If n is a prime number and is greater than 2, then n will not become 1 by 
+  # above two steps. So print n if it is greater than 2.
+  if (n > 2) prime_fact <- c(prime_fact, n)
+  
+  rad_n <- data.frame(n = n_orig,
+                      radn = prod(unique(prime_fact)))
+  
+  radicals <- bind_rows(radicals,
+                        rad_n)
+  
+}
+
+# Sort the list and find the kth element
+radicals %>% 
+  arrange(radn, n) %>% 
+  mutate(k = 1:nrow(radicals) + 1) %>% 
+  filter(k == 10000) %>% 
+  pull(n)
+
+# 21417 - CORRECT!
 
 # Problem 145 - How many reversible numbers are there below one-bi --------
 
