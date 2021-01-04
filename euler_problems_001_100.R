@@ -1804,6 +1804,135 @@ sum(as.numeric(final_strings))
 
 # 16695334890 - CORRECT!
 
+
+# Problem 54 - Poker hands ------------------------------------------------
+
+# In the card game poker, a hand consists of five cards and are ranked, from 
+# lowest to highest, in the following way:
+#   
+#   High Card: Highest value card.
+#   One Pair: Two cards of the same value.
+#   Two Pairs: Two different pairs.
+#   Three of a Kind: Three cards of the same value.
+#   Straight: All cards are consecutive values.
+#   Flush: All cards of the same suit.
+#   Full House: Three of a kind and a pair.
+#   Four of a Kind: Four cards of the same value.
+#   Straight Flush: All cards are consecutive values of same suit.
+#   Royal Flush: Ten, Jack, Queen, King, Ace, in same suit.
+# 
+# The cards are valued in the order:
+#   2, 3, 4, 5, 6, 7, 8, 9, 10, Jack, Queen, King, Ace.
+# 
+# If two players have the same ranked hands then the rank made up of the highest 
+# value wins; for example, a pair of eights beats a pair of fives (see example 1 
+# below). But if two ranks tie, for example, both players have a pair of queens, 
+# then highest cards in each hand are compared (see example 4 below); if the 
+# highest cards tie then the next highest cards are compared, and so on.
+# 
+# Consider the following five hands dealt to two players:
+#   
+# Hand   Player 1	 	        Player 2	 	       Winner
+# 1	 	   5H 5C 6S 7S KD     2C 3S 8S 8D TD     Player 2
+#        Pair of Fives      Pair of Eights
+#   
+# 2	 	   5D 8C 9S JS AC     2C 5C 7D 8S QH     Player 1
+#        Highest card Ace   Highest card Queen
+#   
+# 3	 	   2D 9C AS AH AC     3D 6D 7D TD QD     Player 2
+#        Three Aces         Flush with Diamonds
+#   
+# 4	 	   4D 6S 9H QH QC     3D 6D 7H QD QS     Player 1
+#        Pair of Queens     Pair of Queens
+#        Highest card Nine  Highest card Seven
+# 
+# 5	 	   2H 2D 4C 4D 4S     3C 3D 3S 9S 9D     Player 1
+#        Full House         Full House
+#        With Three Fours   With Three Threes
+# 
+# The file, poker.txt, contains one-thousand random hands dealt to two players. 
+# Each line of the file contains ten cards (separated by a single space): the 
+# first five are Player 1's cards and the last five are Player 2's cards. You 
+# can assume that all hands are valid (no invalid characters or repeated cards), 
+# each player's hand is in no specific order, and in each hand there is a clear 
+# winner.
+# 
+# How many hands does Player 1 win?
+
+hand_type_values <- tribble(
+  ~type,         ~type_value,
+  "royal flush",      10,
+  "straight flush",   9,
+  "four of a kind",   8,
+  "full house",       7,
+  "flush",            6,
+  "straight",         5,
+  "three of a kind",  4,
+  "two pairs",        3,
+  "one pair",         2,
+  "high card",        1
+)
+
+poker <- read.csv('~/git/project_euler_rkuss/euler_data/p054_poker.txt',
+                  header = F) %>% 
+  separate(V1, into = c("p1a", "p1b", "p1c", "p1d", "p1e",
+                        "p2a", "p2b", "p2c", "p2d", "p2e"), sep = " ")
+
+poker_hands <- poker %>% 
+  mutate(hand = 1:nrow(poker)) %>% 
+  gather(player, card, starts_with("p")) %>% 
+  mutate(player = if_else(str_detect(player, "p1"), "Player 1", "Player 2"),
+         card_value = str_sub(card, 1, 1),
+         card_value = case_when(card_value == "A" ~ 14,
+                                card_value == "K" ~ 13,
+                                card_value == "Q" ~ 12,
+                                card_value == "J" ~ 11,
+                                card_value == "T" ~ 10,
+                                TRUE ~ as.numeric(card_value)),
+         card_suit = str_sub(card, 2, 2))
+
+hand_types <- poker_hands %>% 
+  # Add some helper columns
+  group_by(hand, player, card_value) %>% 
+  mutate(n = n()) %>% 
+  ungroup() %>% 
+  # Check for each type of hand
+  group_by(hand, player) %>% 
+  summarise(type = case_when(
+    n_distinct(card_suit) == 1 & min(card_value) == 10 ~ "royal flush",
+    n_distinct(card_suit) == 1 & min(card_value) == max(card_value) - 4 ~ 
+      "straight flush",
+    n_distinct(card_value) == 2 & max(n) == 4 ~ "four of a kind",
+    n_distinct(card_value) == 2 & max(n) == 3 ~ "full house",
+    n_distinct(card_suit) == 1 ~ "flush",
+    min(card_value) == max(card_value) - 4 & max(n) == 1 ~ "straight",
+    max(n) == 3 ~ "three of a kind",
+    max(n) == 2 & n_distinct(card_value) == 3 ~ "two pairs",
+    max(n) == 2 ~ "one pair",
+    TRUE ~ "high card"),
+    tie_breaker = case_when(type %in% c("four of a kind", "three of a kind",
+                                        "two pairs", "one pair") ~ 
+                              max(card_value[n == max(n)]),
+                            TRUE ~ max(card_value))) %>% 
+  ungroup()
+
+
+hand_types %>% 
+  left_join(hand_type_values, by = "type") %>% 
+  group_by(hand) %>% 
+  mutate(verdict = case_when(type_value > min(type_value) ~ "winner",
+                             type_value < max(type_value) ~ "loser",
+                             # handle ties
+                             tie_breaker > min(tie_breaker) ~ "winner",
+                             tie_breaker < max(tie_breaker) ~ "loser",
+                             # these are still ties
+                             TRUE ~ "tie")) %>% 
+  filter(player == "Player 1",
+         verdict == "winner") %>% 
+  nrow()
+
+# 376 - CORRECT!
+
 # Problem 58 - Spiral primes ----------------------------------------------
 
 # Starting with 1 and spiralling anticlockwise in the following way, a square 
