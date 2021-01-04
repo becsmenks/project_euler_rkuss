@@ -53,8 +53,9 @@ quad_combos <- data.frame(a = 1:m) %>%
 # What is the least value of n for which the concave triangle occupies less than 
 # 0.1% of the L-section?
 
-r <- 5
+r <- 1
 n_circles <- 2
+n<- 2
 
 # Start by calculating the area of the L-section based on the circle's radius
 area_circle <- pi * r^2
@@ -66,4 +67,13 @@ y <- (((2*n_circles*r) + (2*r)) - sqrt((((2*n_circles*r) - (2*r))^2) - (4*((n^2)
   (2 * ((n^2) + 1))
 x <- y * n_circles
 
+x^2 + y^2 = r^2
+yn+rn-r = x
+
+y^2 + (yn+rn-r)^2 = r^2
+y^2(1+n^2) + 2(yn*(rn-r)) + (rn+r)^2 -r^2 = 0
+y = (-2*(n*(r*n-r)) - sqrt((2*(n*(r*n-r))^2) - 4*(1+n^2)*(r*n+r)^2 - r^2)) / (2*(1+n^2))
+
+circle_data <- data.frame(x = seq(0, 2, 0.01)) %>% 
+  mutate(y = sqrt(r^2 - (x-r)^2) + r)
 
