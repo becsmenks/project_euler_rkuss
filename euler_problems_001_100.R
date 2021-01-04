@@ -1364,8 +1364,25 @@ coins <- tribble(
   "E2",  200
 )
   
-  
+n_ways_1p <- 1
 
+n_ways_2p <- 2
+
+n_ways_3p <- 2
+
+n_ways_5p <- 2 + n_ways_3p
+
+n_ways_10p <- 1 + (n_ways_5p^2)
+
+n_ways_20p <- 1 + (n_ways_10p^2)
+
+n_ways_40p <- n_ways_20p^2
+
+n_ways_50p <- 1 + (n_ways_40p * n_ways_10p)
+
+n_ways_1E <- 1 + (n_ways_50p^2)
+
+n_ways_2E <- 1 + (n_ways_1E^2)
 
 # Problem 33 - Digit cancelling fractions ---------------------------------
 
