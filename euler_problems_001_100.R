@@ -635,16 +635,6 @@ required_moves <- grid_dim * 2
 
 # At each move, you have two choices, unless you have reached an edge
 
-# Problem 16 - Power digit sum --------------------------------------------
-
-# 2^15 = 32768 and the sum of its digits is 3 + 2 + 7 + 6 + 8 = 26.
-# 
-# What is the sum of the digits of the number 2^1000?
-
-two_raised <- 2^16
-
-sum_digits(two_raised)
-
 # Problem 17 - Number letter counts ---------------------------------------
 
 # If the numbers 1 to 5 are written out in words: one, two, three, four, five, 
@@ -877,21 +867,6 @@ dates %>%
   nrow()
 
 # 171 - CORRECT!
-
-
-# Problem 20 - Factorial digit sum ----------------------------------------
-
-# n! means n × (n − 1) × ... × 3 × 2 × 1
-# 
-# For example, 10! = 10 × 9 × ... × 3 × 2 × 1 = 3628800,
-# and the sum of the digits in the number 10! is 3 + 6 + 2 + 8 + 8 + 0 + 0 = 27.
-# 
-# Find the sum of the digits in the number 100!
-
-n_factorial <- factorial(10)
-
-sum_digits(n_factorial)
-
 
 # Problem 21 - Amicable numbers -------------------------------------------
 
