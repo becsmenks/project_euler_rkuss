@@ -2,7 +2,7 @@
 # projecteuler.net
 # Becca Kuss
 
-source('~/git/project_euler_rkuss/euler_functions.R')
+source('~/git/project_euler_rkuss/euler_problems_r/euler_functions.R')
 
 # Problem 1 - Multiples of 3 and 5 ----------------------------------------
 
