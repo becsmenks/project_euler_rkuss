@@ -957,6 +957,8 @@ names_scores <- names %>%
 
 sum(names_scores$score)
 
+# 871198282 - CORRECT!
+
 # Problem 23 - Non-abundant sums ------------------------------------------
 
 
