@@ -4,6 +4,8 @@
 
 import math
 import os
+import pandas as pd
+import numpy as np
 
 def sum_digits(n):
     # Initialize everything

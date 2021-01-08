@@ -73,3 +73,62 @@ n_factorial = math.factorial(100)
 sum_digits(n_factorial)
 
 # 648 - CORRECT!
+
+
+# Problem 22 - Names scores -----------------------------------------------
+
+# Using names.txt (right click and 'Save Link/Target As...'), a 46K text file
+# containing over five-thousand first names, begin by sorting it into
+# alphabetical order. Then working out the alphabetical value for each name,
+# multiply this value by its alphabetical position in the list to obtain a name
+# score.
+#
+# For example, when the list is sorted into alphabetical order, COLIN, which is
+# worth 3 + 15 + 12 + 9 + 14 = 53, is the 938th name in the list. So, COLIN
+# would obtain a score of 938 × 53 = 49714.
+#
+# What is the total of all the name scores in the file?
+
+# Read in names data
+names = pd.melt(pd.read_csv("~/git/project_euler_rkuss/euler_data/p022_names.txt",
+                            header = None, keep_default_na = False), value_name = 'name')
+
+# Add column with alphabetical rank
+names['alpha_rank'] = names['name'].rank()
+
+# Separate letters into columns
+names[['let_0', 'let_1', 'let_2',
+       'let_3', 'let_4', 'let_5',
+       'let_6', 'let_7', 'let_8',
+       'let_9', 'let_10', 'let_11',
+       'let_12']] = names['name'].str.split(pat = "\s*", expand = True)
+
+# Gather letters into single column
+names_long = pd.melt(names, id_vars = ['variable', 'name', 'alpha_rank'],
+                     var_name = 'position',
+                     value_name = 'letter')
+
+# Drop missing or blank values
+names_clean = names_long.loc[names_long['letter'] != ''].dropna()
+
+# Create lookup of letter scores
+letter_scores = pd.DataFrame(data = {'letter': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+                                                'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+                                     'letter_score': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                                                      15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]})
+
+# Join letter scores to names
+names_joined = names_clean.set_index('letter').join(letter_scores.set_index('letter'))
+
+# Sum the total letter scores for each name
+names_scores = names_joined.groupby(['name', 'alpha_rank'])[['letter_score']].sum().\
+    reset_index(level = ['alpha_rank'])
+
+# Calculate the final name score for each name
+names_scores['name_score'] = names_scores['alpha_rank'] * names_scores['letter_score']
+
+# Sum together all the name scores
+names_scores['name_score'].sum()
+
+# 871198282 - CORRECT!
+

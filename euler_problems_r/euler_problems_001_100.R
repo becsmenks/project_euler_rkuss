@@ -920,7 +920,7 @@ sum(amic_num)
 
 # Read in names data
 names <- read.csv("~/git/project_euler_rkuss/euler_data/p022_names.txt",
-                  header = F) %>% 
+                  header = F, na.strings = "") %>% 
   gather(key, name, starts_with("V")) %>% 
   filter(!is.na(name)) %>% 
   select(name)
@@ -940,7 +940,9 @@ names_scores <- names %>%
   arrange(name) %>% 
   mutate(alpha_rank = row_number(),
          name_splt = str_split(name, "")) %>% 
-  separate(name_splt, into = as.character(1:split_into), sep = ",") %>% 
+  separate(name_splt, 
+           into = as.character(1:split_into), 
+           sep = ",") %>% 
   gather(position, letter, `1`:as.character(split_into)) %>% 
   mutate(letter = str_remove_all(letter, 'c\\(\\"'),
          letter = str_remove_all(letter, '\\"\\)'),
@@ -954,7 +956,6 @@ names_scores <- names %>%
   mutate(score = alpha_rank * letter_total)
 
 sum(names_scores$score)
-
 
 # Problem 23 - Non-abundant sums ------------------------------------------
 
@@ -1451,9 +1452,11 @@ digit_facts %>%
 # 
 # How many circular primes are there below one million?
 
-x <- 100
+x <- 1000000
 
-primes_lt_x <- sieve_of_eratosthenes(x)
+primes_lt_sqrt_x <- sieve_of_eratosthenes(sqrt(x))
+
+primes_lt_x <- (1:x)[is_prime(1:x, primes_lt_sqrt_x)]
 
 
 
