@@ -628,12 +628,16 @@ collatz_lengths %>%
 # 
 # How many such routes are there through a 20×20 grid?
 
-grid_dim <- 2
+grid_dim <- 20
 
 # How many moves are required to reach the bottom corner?
 required_moves <- grid_dim * 2
 
-# At each move, you have two choices, unless you have reached an edge
+# Half of the moves have to be down and half right, so how many different ways
+# can you pick half down moves and half right moves?
+factorial(required_moves) / (factorial(grid_dim) * factorial(grid_dim))
+
+# 137846528820 - CORRECT!
 
 # Problem 17 - Number letter counts ---------------------------------------
 
@@ -2176,4 +2180,27 @@ keylog_ordered_pairs <- keylog %>%
 # required
 
 # 73162890 - CORRECT!
+
+# Problem 100 - Arranged probability --------------------------------------
+
+# If a box contains twenty-one coloured discs, composed of fifteen blue discs 
+# and six red discs, and two discs were taken at random, it can be seen that the 
+# probability of taking two blue discs, P(BB) = (15/21)×(14/20) = 1/2.
+# 
+# The next such arrangement, for which there is exactly 50% chance of taking two 
+# blue discs at random, is a box containing eighty-five blue discs and 
+# thirty-five red discs.
+# 
+# By finding the first arrangement to contain over 10^12 = 1,000,000,000,000 
+# discs in total, determine the number of blue discs that the box would contain.
+
+
+n_blue <- 85
+n_red <- 35
+n_total <- n_blue + n_red
+
+p_bb <- (n_blue / n_total) * ((n_blue - 1) / (n_total - 1))
+
+obj_coeff <- c(1, 1)
+constr_mat
 
