@@ -1214,6 +1214,67 @@ recurr_sequences %>%
 # 983 - CORRECT!
 
 
+# Problem 27 - Quadratic primes -------------------------------------------
+
+# Euler discovered the remarkable quadratic formula:
+#   n^2 + n + 41
+#   
+# It turns out that the formula will produce 40 primes for the consecutive 
+# integer values 0<=n<=39. However, when n = 40, 40^2 + 40 + 41 = 40(40+1) + 41 
+# is divisible by 41, and certainly when n = 41, 41^2 + 41 + 41 is clearly 
+# divisible by 41.
+# 
+# The incredible formula n^2 - 79n + 1601 was discovered, which produces 80 
+# primes for the consecutive values 0<=n<=79. The product of the coefficients, 
+# −79 and 1601, is −126479.
+# 
+# Considering quadratics of the form:
+#   
+#   n^2 + an + b, where |a|<1000 and |b|<=1000
+# 
+# where |n| is the modulus/absolute value of n
+# e.g. |11|=11 and |-4|=4
+# 
+# Find the product of the coefficients, a and b, for the quadratic expression 
+# that produces the maximum number of primes for consecutive values of n, 
+# starting with n=0.
+
+primes_lt_1000 <- sieve_of_eratosthenes(1000)
+
+a <- -999:999
+b <- primes_lt_1000
+
+ab_combos <- data.frame(a) %>% 
+  merge(data.frame(b))
+
+
+candidates <- ab_combos
+n <- 0
+while (nrow(candidates) > 1) {
+  
+  # Increment n
+  n <- n + 1
+  print(n)
+  
+  candidates <- candidates %>% 
+    mutate(q = (n^2) + (a * n) + b) %>% 
+    filter(q >= 0, # can't have negative primes
+           (q %% 2 != 0 | q == 2), # can't have even numbers except for two
+           q %% 3 != 0,
+           q %% 5 != 0,
+           q %% 7 != 0,
+           q %% 11 != 0,
+           q %% 13 != 0,
+           q %% 17 != 0) %>% 
+    mutate(q_pr = is_prime(q, primes_lt_1000)) %>% 
+    filter(q_pr) %>% 
+    select(a, b)
+}
+
+candidates$a * candidates$b
+
+# -59231 - CORRECT!
+
 # Problem 28 - Number spiral diagonals ------------------------------------
 
 
@@ -2201,6 +2262,5 @@ n_total <- n_blue + n_red
 
 p_bb <- (n_blue / n_total) * ((n_blue - 1) / (n_total - 1))
 
-obj_coeff <- c(1, 1)
-constr_mat
+
 
