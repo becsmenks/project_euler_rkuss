@@ -25,9 +25,9 @@
 # What is the value of the first triangle number to have over five hundred
 # divisors?
 
-i = 10000
+i = 11990
 n_div = 0
-while n_div < 500 & i < 12000:
+while (n_div < 500) & (i < 12000):
 
     # Get the next triangular number and its list of possible divisors
     tn = sum(list(range(1, i+1)))
@@ -38,6 +38,7 @@ while n_div < 500 & i < 12000:
     for d in poss_div:
         if tn % d == 0:
             n_div_tn = n_div_tn + 1
+
     print(n_div_tn)
 
     # Update max number of divisors

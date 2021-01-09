@@ -435,16 +435,46 @@ grid %>%
 tri_seq <- data.frame(n = 1:1000) %>% 
   mutate(tn = cumsum(n),
          n_div = get_n_div(tn))
+tri_seq2 <- data.frame(n = 10000:11110) %>% 
+  mutate(tn = cumsum(n),
+         n_div = get_n_div(tn))
+
+tri_seq3 <- data.frame(n = 1:10000) %>% 
+  mutate(tn = cumsum(n))
+
+tri_seq4 <- tri_seq3 %>% 
+  filter(n > 9950) %>% 
+  mutate(n_div = get_n_div(tn))
 
 # Find the first one to have certain number of divisors
 # Works, bu too slow to scale
 over_n_divisors <- 500
-tri_seq %>% 
+tri_seq2 %>% 
   filter(n_div > over_n_divisors) %>% 
   summarise(m = min(tn)) %>% 
   pull(m)
 
 
+# Try the looping method
+i <- 13000
+n_div <- 0
+while ((n_div < 500) & (i < 15000)) {
+  
+  # Get the next triangular number and its list of possible divisors
+  tn <- sum(1:(i+1))
+  poss_div <- 1:ceiling((tn+1)/2)
+  
+  # Check number of divisors
+  n_div_tn <- sum(tn %% poss_div == 0)
+  print(n_div_tn)
+  
+  # Update max number of divisors
+  n_div <- n_div_tn
+  i <- i + 1
+  
+}
+  
+  
 # Problem 13 - Large sum --------------------------------------------------
 
 # Work out the first ten digits of the sum of the following one-hundred 50-digit 
