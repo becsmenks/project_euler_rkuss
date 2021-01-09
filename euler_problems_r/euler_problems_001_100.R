@@ -611,7 +611,7 @@ for (starting_num in 999999:1) {
   
   if (starting_num %in% all_collatz_terms) next
   
-  message(starting_num)
+  # message(starting_num)
   
   # Initialize everything
   i <- starting_num
@@ -640,9 +640,9 @@ for (starting_num in 999999:1) {
                                data.frame(start_n = starting_num,
                                           len = length(collatz_seq)))
   
-  # Save all numbers appearing in sequence, we'll skip these later on becase
+  # Save all numbers appearing in sequence, we'll skip these later on because
   # they can't be the longest sequences
-  all_collatz_terms <- unique(c(all_collatz_terms, collatz_seq))
+  all_collatz_terms <- c(all_collatz_terms, collatz_seq)
   
 }
 
