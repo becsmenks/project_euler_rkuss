@@ -2100,6 +2100,56 @@ i - n_consec
 # 134043 - CORRECT!
 
 
+# Problem 49 - Prime permutations -----------------------------------------
+
+# The arithmetic sequence, 1487, 4817, 8147, in which each of the terms 
+# increases by 3330, is unusual in two ways: (i) each of the three terms are 
+# prime, and, (ii) each of the 4-digit numbers are permutations of one another.
+# 
+# There are no arithmetic sequences made up of three 1-, 2-, or 3-digit primes, 
+# exhibiting this property, but there is one other 4-digit increasing sequence.
+# 
+# What 12-digit number do you form by concatenating the three terms in this 
+# sequence?
+
+pr_lt_10000 <- sieve_of_eratosthenes(9999)
+four_dig_pr <- pr_lt_10000[pr_lt_10000 > 999]
+
+prime_permut <- data.frame(p1 = four_dig_pr) %>% 
+  merge(data.frame(p2 = four_dig_pr)) %>% 
+  filter(p2 > p1) %>% 
+  mutate(p3 = p2 + (p2 - p1)) %>% 
+  filter(p3 < 9999,
+         is_prime(p3, pr_lt_10000))
+
+prime_permut_final <- data.frame()
+for (i in 1:nrow(prime_permut)) {
+  
+  print(i)
+  
+  # First check if p3 is prime
+  if (!is_prime(prime_permut$p3[i], pr_lt_10000)) next
+  
+  # Next check whether it's a permutation
+  p1 <- str_split(prime_permut$p1[i], "")[[1]]
+  p2 <- str_split(prime_permut$p2[i], "")[[1]]
+  p3 <- str_split(prime_permut$p3[i], "")[[1]]
+  
+  if (!(setequal(p1, p2) & setequal(p2, p3))) next
+  
+  # If it passes both the above, save the result
+  prime_permut_final <- bind_rows(prime_permut_final,
+                                  slice(prime_permut, i))
+}
+
+prime_permut_final %>% 
+  slice(2) %>% 
+  mutate(all = paste0(p1, p2, p3)) %>% 
+  pull(all) %>% 
+  as.numeric()
+
+# 296962999629 - CORRECT!
+  
 # Problem 50 - Consecutive prime sum --------------------------------------
 
 # The prime 41, can be written as the sum of six consecutive primes:
