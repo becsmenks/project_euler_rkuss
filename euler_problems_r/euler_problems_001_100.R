@@ -2422,6 +2422,77 @@ keylog_ordered_pairs <- keylog %>%
 
 # 73162890 - CORRECT!
 
+
+# Problem 89 - Roman numerals ---------------------------------------------
+
+# For a number written in Roman numerals to be considered valid there are basic 
+# rules which must be followed. Even though the rules allow some numbers to be 
+# expressed in more than one way there is always a "best" way of writing a 
+# particular number.
+# 
+# For example, it would appear that there are at least six ways of writing the 
+# number sixteen:
+#   
+#   IIIIIIIIIIIIIIII
+#   VIIIIIIIIIII
+#   VVIIIIII
+#   XIIIIII
+#   VVVI
+#   XVI
+# 
+# However, according to the rules only XIIIIII and XVI are valid, and the last 
+# example is considered to be the most efficient, as it uses the least number of 
+# numerals.
+# 
+# The 11K text file, roman.txt (right click and 'Save Link/Target As...'), 
+# contains one thousand numbers written in valid, but not necessarily minimal, 
+# Roman numerals; see About... Roman Numerals for the definitive rules for this 
+# problem.
+# 
+# Find the number of characters saved by writing each of these in their minimal 
+# form.
+# 
+# Note: You can assume that all the Roman numerals in the file contain no more 
+# than four consecutive identical units.
+
+roman <- read.csv('~/git/project_euler_rkuss/euler_data/p089_roman.txt',
+                  header = F) %>% 
+  rename(roman_numeral = V1) %>% 
+  mutate(len_orig = nchar(roman_numeral))
+
+# Create a lookup table of values
+roman_lkup <- tribble(
+  ~numeral, ~value,
+  'I',      1,
+  'V',      5,
+  'X',      10,
+  'L',      50,
+  'C',      100,
+  'D',      500,
+  'M',      1000
+)
+
+# Find out how many columns are needed to split up the longest roman numberal
+split_into <- roman %>% 
+  pull(len_orig) %>% 
+  max()
+
+# Calculate name scores
+roman_long <- roman %>% 
+  select(roman_numeral) %>% 
+  tibble::rownames_to_column("record") %>% 
+  mutate(roman_numeral_splt = str_split(roman_numeral, "")) %>% 
+  separate(roman_numeral_splt, 
+           into = as.character(1:split_into), 
+           sep = ",") %>% 
+  gather(position, numeral, `1`:as.character(split_into)) %>% 
+  mutate(numeral = str_remove_all(numeral, 'c\\(\\"'),
+         numeral = str_remove_all(numeral, '\\"\\)'),
+         numeral = str_remove_all(numeral, '\\"'),
+         numeral = str_remove_all(numeral, ' ')) %>% 
+  filter(!is.na(numeral)) %>% 
+  left_join(roman_lkup, by = "numeral")
+
 # Problem 100 - Arranged probability --------------------------------------
 
 # If a box contains twenty-one coloured discs, composed of fifteen blue discs 
