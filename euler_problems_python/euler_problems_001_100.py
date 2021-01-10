@@ -133,6 +133,16 @@ names_scores['name_score'].sum()
 
 # 871198282 - CORRECT!
 
+# Problem 41 - Pandigital prime -------------------------------------------
+
+# We shall say that an n-digit number is pandigital if it makes use of all the
+# digits 1 to n exactly once. For example, 2143 is a 4-digit pandigital and is
+# also prime.
+#
+# What is the largest n-digit pandigital prime that exists?
+
+n_digit_primes = sieve_of_eratosthenes(1000000000)
+
 # Problem 48 - Self powers -----------------------------------------------
 
 # The series, 1^1 + 2^2 + 3^3 + ... + 10^10 = 10405071317.

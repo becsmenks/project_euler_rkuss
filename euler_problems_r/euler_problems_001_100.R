@@ -1839,6 +1839,40 @@ prod(as.numeric(d_check))
 
 # 210 - CORRECT!
 
+
+# Problem 41 - Pandigital prime -------------------------------------------
+
+# We shall say that an n-digit number is pandigital if it makes use of all the 
+# digits 1 to n exactly once. For example, 2143 is a 4-digit pandigital and is 
+# also prime.
+# 
+# What is the largest n-digit pandigital prime that exists?
+
+primes_lt_10000 <- sieve_of_eratosthenes(10000)
+
+pandig_primes <- data.frame()
+for (n in 4:7) {
+  pandig_primes <- merge_n_times(1:n, n, "digit") %>% 
+    tibble::rownames_to_column("combo") %>% 
+    gather(position, digit, starts_with("digit")) %>% 
+    group_by(combo) %>% 
+    # Check that the number is pandigital
+    filter(length(unique(digit)) == n) %>% 
+    mutate(exp = n - as.numeric(str_remove(position, "digit")),
+           value = digit * (10 ^ exp)) %>% 
+    summarise(value = sum(value)) %>% 
+    ungroup() %>% 
+    filter(is_prime(value, primes_lt_10000)) %>% 
+    select(p = value) %>% 
+    bind_rows(pandig_primes)
+}
+
+pandig_primes %>% 
+  pull(p) %>% 
+  max()
+
+# 7652413 - CORRECT!
+
 # Problem 42 - Coded triangle numbers -------------------------------------
 
 # The nth term of the sequence of triangle numbers is given by, tn = ½n(n+1); so 
