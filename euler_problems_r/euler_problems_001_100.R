@@ -2061,6 +2061,44 @@ tri_pent_hex_nums %>%
 
 # 1533776805 - CORRECT!
 
+
+# Problem 47 - Distinct primes factors ------------------------------------
+
+# The first two consecutive numbers to have two distinct prime factors are:
+#   
+#   14 = 2 × 7
+#   15 = 3 × 5
+# 
+# The first three consecutive numbers to have three distinct prime factors are:
+#   
+#   644 = 2² × 7 × 23
+#   645 = 3 × 5 × 43
+#   646 = 2 × 17 × 19.
+# 
+# Find the first four consecutive integers to have four distinct prime factors 
+# each. What is the first of these numbers?
+
+n_consec <- 4
+i <- 600
+n_found <- 0
+while (n_found < n_consec) {
+  
+  # Count prime factors
+  if (length(unique(prime_factors(i))) == n_consec) {
+    n_found <- n_found + 1
+  } else {
+    # Reset back to 0, since the count needs to be consecutive
+    n_found <- 0
+  }
+  
+  # Increment i
+  i <- i + 1
+}
+
+i - n_consec
+
+# 134043 - CORRECT!
+
 # Problem 54 - Poker hands ------------------------------------------------
 
 # In the card game poker, a hand consists of five cards and are ranked, from 

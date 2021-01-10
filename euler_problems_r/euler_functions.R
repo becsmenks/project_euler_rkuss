@@ -168,4 +168,33 @@ get_n_div <- function(x) {
   out
 }
 
-
+# Prime factorization 
+prime_factors <- function(n) {
+  
+  prime_fact <- c()
+  
+  # 1) While n is divisible by 2, print 2 and divide n by 2.
+  while (n %% 2 == 0) {
+    prime_fact <- c(prime_fact, 2)
+    n <- n / 2
+  }
+  
+  # 2) After step 1, n must be odd. Now start a loop from i = 3 to square root 
+  # of n. While i divides n, print i and divide n by i. After i fails to divide 
+  # n, increment i by 2 and continue.
+  if (n > 2) {
+    for (i in seq(from = 3, to = max(sqrt(n),3), by = 2)) {
+      while (n %% i == 0) {
+        prime_fact <- c(prime_fact, i)
+        n <- n / i
+      }
+    }
+  }
+  
+  # 3) If n is a prime number and is greater than 2, then n will not become 1 by 
+  # above two steps. So print n if it is greater than 2.
+  if (n > 2) prime_fact <- c(prime_fact, n)
+  
+  prime_fact
+  
+}
