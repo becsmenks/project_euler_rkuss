@@ -133,3 +133,14 @@ names_scores['name_score'].sum()
 
 # 871198282 - CORRECT!
 
+# Problem 48 - Self powers -----------------------------------------------
+
+# The series, 1^1 + 2^2 + 3^3 + ... + 10^10 = 10405071317.
+#
+# Find the last ten digits of the series, 1^1 + 2^2 + 3^3 + ... + 1000^1000.
+
+total = 0
+for i in range(1,1000):
+    total = total + (i ** i)
+
+# 9110846700 - CORRECT!
