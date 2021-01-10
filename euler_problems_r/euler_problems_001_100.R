@@ -1686,6 +1686,50 @@ trunc_primes %>%
   sum()
 
 
+# Problem 38 - Pandigital multiples ---------------------------------------
+
+# Take the number 192 and multiply it by each of 1, 2, and 3:
+#   
+#   192 × 1 = 192
+#   192 × 2 = 384
+#   192 × 3 = 576
+# 
+# By concatenating each product we get the 1 to 9 pandigital, 192384576. We will 
+# call 192384576 the concatenated product of 192 and (1,2,3)
+# 
+# The same can be achieved by starting with 9 and multiplying by 1, 2, 3, 4, and 
+# 5, giving the pandigital, 918273645, which is the concatenated product of 9 
+# and (1,2,3,4,5).
+# 
+# What is the largest 1 to 9 pandigital 9-digit number that can be formed as the 
+# concatenated product of an integer with (1,2, ... , n) where n > 1?
+
+pan_prod <- c()
+for (i in 1:10000) {
+  
+  con_prod <- ""
+  j <- 1
+  while (nchar(con_prod) < 9) {
+    part_prod <- i * j
+    con_prod <- paste0(con_prod, part_prod)
+    j <- j + 1
+  }
+  
+  # To be pandigital, the number must be length 9 and have 9 unique, non-zero
+  # digits
+  con_prod_len <- nchar(con_prod)
+  uni_len <- length(unique(str_split(str_remove_all(con_prod, "0"), "")[[1]]))
+  
+  if (con_prod_len == 9 & uni_len == 9) {
+    pan_prod <- c(pan_prod, as.numeric(con_prod))
+  }
+  
+}
+
+max(pan_prod)
+
+# 932718654 - CORRECT!
+
 # Problem 39 - Integer right triangles ------------------------------------
 
 # If p is the perimeter of a right angle triangle with integral length sides, 
