@@ -2099,6 +2099,53 @@ i - n_consec
 
 # 134043 - CORRECT!
 
+
+# Problem 50 - Consecutive prime sum --------------------------------------
+
+# The prime 41, can be written as the sum of six consecutive primes:
+#   
+#   41 = 2 + 3 + 5 + 7 + 11 + 13
+# 
+# This is the longest sum of consecutive primes that adds to a prime below 
+# one-hundred.
+# 
+# The longest sum of consecutive primes below one-thousand that adds to a prime, 
+# contains 21 terms, and is equal to 953.
+# 
+# Which prime, below one-million, can be written as the sum of the most 
+# consecutive primes?
+
+primes_lt_x <- sieve_of_eratosthenes(10000)
+start_with_len <- 6
+
+prime_log <- data.frame()
+for (i in 1:length(primes_lt_x)) {
+  
+  # Get the allowable lengths based on i
+  j_start <- min(start_with_len,
+                 length(primes_lt_x) - i - 1)
+  j_end <- length(primes_lt_x) - i - 1
+  
+  # Try different lengths of consecutive primes
+  for (j in j_start:j_end) {
+    sum_consec_primes <- sum(primes_lt_x[i:(i + j)])
+    
+    # If the result is prime, save the length of the consecutive primes
+    if (is_prime(sum_consec_primes, primes_lt_x)) {
+      prime_log <- bind_rows(prime_log,
+                             data.frame(p = sum_consec_primes,
+                                        l = j))
+    }
+  }
+}
+
+prime_log %>% 
+  filter(p < 1000000) %>% 
+  filter(l == max(l)) %>% 
+  pull(p)
+
+# 997651 - CORRECT!
+
 # Problem 54 - Poker hands ------------------------------------------------
 
 # In the card game poker, a hand consists of five cards and are ranked, from 
