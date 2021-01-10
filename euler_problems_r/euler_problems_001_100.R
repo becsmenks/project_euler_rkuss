@@ -650,6 +650,7 @@ collatz_lengths %>%
   filter(len == max(len)) %>% 
   pull(start_n)
 
+# 837799 - CORRECT!
 
 # Problem 15 - Lattice paths ----------------------------------------------
 
@@ -1456,6 +1457,54 @@ n_ways_50p <- 1 + (n_ways_40p * n_ways_10p)
 n_ways_1E <- 1 + (n_ways_50p^2)
 
 n_ways_2E <- 1 + (n_ways_1E^2)
+
+
+# Problem 32 - Pandigital products ----------------------------------------
+
+# We shall say that an n-digit number is pandigital if it makes use of all the 
+# digits 1 to n exactly once; for example, the 5-digit number, 15234, is 1 
+# through 5 pandigital.
+# 
+# The product 7254 is unusual, as the identity, 39 × 186 = 7254, containing 
+# multiplicand, multiplier, and product is 1 through 9 pandigital.
+# 
+# Find the sum of all products whose multiplicand/multiplier/product identity 
+# can be written as a 1 through 9 pandigital.
+# 
+# HINT: Some products can be obtained in more than one way so be sure to only 
+# include it once in your sum.
+
+two_three_digit_products <- data.frame(a = 10:99) %>% 
+  merge(data.frame(b = 100:999)) %>% 
+  mutate(c = a * b,
+         s1 = paste0(a, b, c),
+         s2 = gsub('([0-9])\\1+', '\\1', s1)) %>% 
+  filter(nchar(s1) == 9, 
+         nchar(s2) == 9, 
+         !str_detect(s1, "0"))
+
+one_four_digit_products <- data.frame(a = 1:9) %>% 
+  merge(data.frame(b = 1000:9999)) %>% 
+  mutate(c = a * b,
+         s1 = paste0(a, b, c),
+         s2 = gsub('([0-9])\\1+', '\\1', s1)) %>% 
+  filter(nchar(s1) == 9, 
+         nchar(s2) == 9, 
+         !str_detect(s1, "0"))
+
+pandigital_candidates <- bind_rows(two_three_digit_products,
+                                   one_four_digit_products)
+pandigital_products <- c()
+for (i in 1:nrow(pandigital_candidates)) {
+  if (length(unique(charToRaw(pandigital_candidates$s1[i]))) == 9) {
+    pandigital_products <- c(pandigital_products,
+                             pandigital_candidates$c[i])
+  }
+}
+
+sum(unique(pandigital_products))
+
+# 45228 - CORRECT!
 
 # Problem 33 - Digit cancelling fractions ---------------------------------
 
