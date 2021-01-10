@@ -91,6 +91,35 @@ sum_digits <- function(n) {
   all_digits_sum
 }
 
+# Reverse number
+rev_num <- function(x) {
+  
+  # Initialize everything
+  all_digits <- c()
+  
+  # Pick off each digit
+  ct <- 0
+  while (x > 0) {
+    
+    # Pull out the right-most digit and add to total
+    all_digits <- c(all_digits, (x %% 10))
+    
+    # Update the remaining digits
+    x <- x %/% 10
+    ct <- ct + 1
+  }
+  
+  # Turn the digits back into a number
+  ex <- ct - 1
+  result <- 0
+  for (d in all_digits) {
+    result <- result + (d * 10 ^ ex)
+    ex <- ex - 1
+  }
+  
+  result
+}
+
 # Merge n times
 merge_n_times <- function(vector, n = 2, col = "col") {
   
