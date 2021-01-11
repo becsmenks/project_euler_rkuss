@@ -51,3 +51,18 @@ def sieve_of_eratosthenes(n):
     res = [i for i, val in enumerate(a) if val]
     return res
 
+
+# Check Primality
+def is_prime(n, primes):
+    # Wikipedia:
+    # The simplest primality test is trial division: given an input number, n,
+    # check whether it is evenly divisible by any prime number between 2 and √n
+    # (i.e. that the division leaves no remainder). If so, then n is composite.
+    # Otherwise, it is prime.
+
+    if n == 1:
+        out = False
+    else:
+        out = len([num for num in primes if num <= math.sqrt(n) and n % num == 0]) == 0
+
+    return out
