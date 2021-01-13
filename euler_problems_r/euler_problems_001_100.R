@@ -1438,26 +1438,140 @@ coins <- tribble(
   "E2",  200
 )
   
-n_ways_1p <- 1
+# Count the ways to make 1p
+n_ways_1p <- data.frame(way_1p = "1p")
 
-n_ways_2p <- 2
+# Count the ways to make 2p
+n_ways_2p <- data.frame(way_2p = c("1p + 1p", "2p"))
 
-n_ways_3p <- 2
+# Count the ways to make 3p
+n_ways_3p <- merge(n_ways_1p, n_ways_2p) %>% 
+  mutate(way_3p = paste(way_1p, way_2p, sep = " + ")) %>% 
+  distinct(way_3p)
 
-n_ways_5p <- 2 + n_ways_3p
+# Count the ways to make 5p
+n_ways_5p <- merge(n_ways_2p, n_ways_3p) %>% 
+  mutate(way_5p = paste(way_2p, way_3p, sep = " + ")) %>% 
+  distinct(way_5p) %>% 
+  bind_rows(data.frame(way_5p = "5p"))
 
-n_ways_10p <- 1 + (n_ways_5p^2)
+for (r in 1:nrow(n_ways_5p)) {
+  way <- slice(n_ways_5p, r)
+  n_ways_5p$way_5p[r] <- paste(sort(str_split(way, " \\+ ")[[1]]), 
+                               collapse = " + ")
+}
+n_ways_5p <- distinct(n_ways_5p)
 
-n_ways_20p <- 1 + (n_ways_10p^2)
+# Count the ways to make 10p
+n_ways_10p <- merge(n_ways_5p, rename(n_ways_5p, way_5p_2 = way_5p)) %>% 
+  mutate(way_10p = paste(way_5p, way_5p_2, sep = " + ")) %>% 
+  distinct(way_10p) %>% 
+  bind_rows(data.frame(way_10p = "10p"))
 
-n_ways_40p <- n_ways_20p^2
+for (r in 1:nrow(n_ways_10p)) {
+  way <- slice(n_ways_10p, r)
+  n_ways_10p$way_10p[r] <- paste(sort(str_split(way, " \\+ ")[[1]]), 
+                                 collapse = " + ")
+}
+n_ways_10p <- distinct(n_ways_10p)
 
-n_ways_50p <- 1 + (n_ways_40p * n_ways_10p)
+# Count the ways to make 20p
+n_ways_20p <- merge(n_ways_10p, rename(n_ways_10p, way_10p_2 = way_10p)) %>% 
+  mutate(way_20p = paste(way_10p, way_10p_2, sep = " + ")) %>% 
+  distinct(way_20p) %>% 
+  bind_rows(data.frame(way_20p = "20p"))
 
-n_ways_1E <- 1 + (n_ways_50p^2)
+for (r in 1:nrow(n_ways_20p)) {
+  way <- slice(n_ways_20p, r)
+  n_ways_20p$way_20p[r] <- paste(sort(str_split(way, " \\+ ")[[1]]), 
+                                 collapse = " + ")
+}
+n_ways_20p <- distinct(n_ways_20p)
 
-n_ways_2E <- 1 + (n_ways_1E^2)
+# Count the ways to make 40p
+n_ways_40p <- merge(n_ways_20p, rename(n_ways_20p, way_20p_2 = way_20p)) %>% 
+  mutate(way_40p = paste(way_20p, way_20p_2, sep = " + ")) %>% 
+  distinct(way_40p)
 
+for (r in 1:nrow(n_ways_40p)) {
+  way <- slice(n_ways_40p, r)
+  n_ways_40p$way_40p[r] <- paste(sort(str_split(way, " \\+ ")[[1]]), 
+                                 collapse = " + ")
+}
+n_ways_40p <- distinct(n_ways_40p)
+
+# Count the ways to make 50p
+n_ways_50p <- merge(n_ways_10p, n_ways_40p) %>% 
+  mutate(way_50p = paste(way_10p, way_40p, sep = " + ")) %>% 
+  distinct(way_50p) %>% 
+  bind_rows(data.frame(way_50p = "50p"))
+
+for (r in 1:nrow(n_ways_50p)) {
+  way <- slice(n_ways_50p, r)
+  n_ways_50p$way_50p[r] <- paste(sort(str_split(way, " \\+ ")[[1]]), 
+                                 collapse = " + ")
+}
+n_ways_50p <- distinct(n_ways_50p)
+
+# Count the ways to make 1E
+n_ways_1E <- merge(n_ways_50p, rename(n_ways_50p, way_50p_2 = way_50p)) %>% 
+  mutate(way_1E = paste(way_50p, way_50p_2, sep = " + ")) %>% 
+  distinct(way_1E) %>% 
+  bind_rows(data.frame(way_1E = "1E"))
+
+sep_into <- n_ways_1E %>% 
+  mutate(len = str_count(way_1E, "\\+") + 1) %>% 
+  pull(len) %>% 
+  max()
+
+n_ways_1E <- n_ways_1E %>% 
+  tibble::rownames_to_column("way_id") %>% 
+  # Separate coins and gather to sort them into order
+  separate(way_1E, into = paste0("coin", 1:sep_into)) %>% 
+  gather(key, value, starts_with("coin")) %>% 
+  filter(!is.na(value)) %>% 
+  group_by(way_id) %>% 
+  arrange(value) %>% 
+  # Collapse back down to single string and find distinct ways
+  summarise(way_1E = paste0(value, collapse = " + ")) %>% 
+  ungroup() %>% 
+  distinct(way_1E)
+
+# Count the ways to make 1E50p
+n_ways_1E50p <- merge(n_ways_1E, n_ways_50p) %>% 
+  mutate(way_1E50p = paste(way_1E, way_50p, sep = " + ")) %>% 
+  distinct(way_1E50p)
+
+sep_into <- n_ways_1E50p %>% 
+  mutate(len = str_count(way_1E50p, "\\+") + 1) %>% 
+  pull(len) %>% 
+  max()
+
+n_ways_1E50p <- n_ways_1E50p %>% 
+  tibble::rownames_to_column("way_id") %>% 
+  # Separate coins and gather to sort them into order
+  separate(way_1E50p, into = paste0("coin", 1:sep_into)) %>% 
+  gather(key, value, starts_with("coin")) %>% 
+  filter(!is.na(value)) %>% 
+  group_by(way_id) %>% 
+  arrange(value) %>% 
+  # Collapse back down to single string and find distinct ways
+  summarise(way_1E50p = paste0(value, collapse = " + ")) %>% 
+  ungroup() %>% 
+  distinct(way_1E50p)
+
+# Count the ways to make 2E
+n_ways_1E_small <- n_ways_1E %>% 
+  tibble::rownames_to_column("way_id") %>% 
+  separate(way_1E, into = paste0("coin", 1:sep_into)) %>% 
+  gather(key, value, starts_with("coin")) %>% 
+  filter(!is.na(value)) %>% 
+  count(way_id, value) %>% 
+  spread(value, n) %>% 
+  replace(is.na(.), 0)
+
+n_ways_1E_small %>% 
+  let_join(n_ways_1E_small)
 
 # Problem 32 - Pandigital products ----------------------------------------
 
