@@ -265,4 +265,50 @@ max_sum
 
 # 972 - CORRECT!
 
+# Problem 57 - Square root convergents ------------------------------------
 
+# It is possible to show that the square root of two can be expressed as an
+# infinite continued fraction.
+#
+# By expanding this for the first four iterations, we get:
+#
+# The next three expansions are...
+#
+# but the eighth expansion is the first example where the number of digits in the
+# numerator exceeds the number of digits in the denominator.
+#
+# In the first one-thousand expansions, how many fractions contain a numerator
+# with more digits than the denominator?
+
+total = 0
+for it in range(2,1001):
+    print(it)
+
+    # Initialize numerator and denominator for first iteration
+    i = it
+    numerat = 1
+    denomin = 2
+
+    # For each iteration, add 2 and take reciprocal
+    while i > 1:
+        # Take the reciprocal of 2 + the old fraction
+        denomin_new = numerat + (2 * denomin)
+        numerat_new = denomin
+
+        # Update the numerator and denominator
+        denomin = denomin_new
+        numerat = numerat_new
+
+        # Increment i
+        i = i - 1
+
+    # Add 1
+    numerat = numerat + denomin
+
+    # Count the digits and determine if
+    if count_digits(numerat) > count_digits(denomin):
+        total = total + 1
+
+total
+
+# 153 - CORRECT!

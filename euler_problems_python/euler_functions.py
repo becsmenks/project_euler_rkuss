@@ -22,6 +22,18 @@ def sum_digits(n):
 
     return all_digits_sum
 
+def count_digits(n):
+    # Initialize everything
+    n_digits = 0
+
+    # Pick off each digit
+    while n > 0:
+        # Peel off the last digit
+        n = n // 10
+        # Count that digit
+        n_digits = n_digits + 1
+
+    return n_digits
 
 # Sieve of Eratosthenes
 # (Too slow)
