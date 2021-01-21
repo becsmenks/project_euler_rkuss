@@ -133,6 +133,57 @@ names_scores['name_score'].sum()
 
 # 871198282 - CORRECT!
 
+# Problem 35 - Circular primes --------------------------------------------
+
+# The number, 197, is called a circular prime because all rotations of the
+# digits: 197, 971, and 719, are themselves prime.
+#
+# There are thirteen such primes below 100: 2, 3, 5, 7, 11, 13, 17, 31, 37, 71,
+# 73, 79, and 97.
+#
+# How many circular primes are there below one million?
+
+x = 1000000
+
+primes_lt_x = sieve_of_eratosthenes(x)
+
+circular_primes = []
+for p in primes_lt_x:
+    print(p)
+
+    # If it's less than 10, it's circular so skip ahead
+    if p < 10:
+        circular_primes = circular_primes + [p]
+        continue
+
+    # Start by parsing out the digits of p
+    p_part = p
+    p_digits = []
+    while p_part > 0:
+        d = p_part % 10
+        p_digits = p_digits + [d]
+        p_part = (p_part - d) / 10
+
+    # If there's any 2 in p, it won't be circular since some combination will end in 2
+    if 2 in p_digits or 5 in p_digits or 0 in p_digits:
+        continue
+
+    # Now check all the remaining permutations
+    p_perms = list(set(itertools.permutations(p_digits)))
+    p_perms_primality = []
+    for x in p_perms:
+        v = 0
+        for j in range(0, len(x)):
+            scale = 10 ** (len(x) - j - 1)
+            v = v + (x[j] * scale)
+        p_perms_primality = p_perms_primality + [is_prime(v, primes_lt_x)]
+
+    if all(p_perms_primality):
+        circular_primes = circular_primes + [p]
+
+len(circular_primes)
+
+
 # Problem 41 - Pandigital prime -------------------------------------------
 
 # We shall say that an n-digit number is pandigital if it makes use of all the
@@ -191,3 +242,27 @@ for i in range(1,1000):
     total = total + (i ** i)
 
 # 9110846700 - CORRECT!
+
+
+# Problem 56 - Powerful digit sum -----------------------------------------
+
+# A googol (10^100) is a massive number: one followed by one-hundred zeros;
+# 100^100 is almost unimaginably large: one followed by two-hundred zeros.
+# Despite their size, the sum of the digits in each number is only 1.
+#
+# Considering natural numbers of the form, a^b, where a, b < 100, what is
+# the maximum digital sum?
+
+max_sum = 1
+for a in range(1,100):
+    print(a)
+    for b in range(1,100):
+        sum_ab = sum_digits(a ** b)
+        if sum_ab > max_sum:
+            max_sum = sum_ab
+
+max_sum
+
+# 972 - CORRECT!
+
+
