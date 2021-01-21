@@ -370,7 +370,102 @@ total
 
 # 153 - CORRECT!
 
+# Problem 65 - Convergents of e ---------------------------------------
 
+# The square root of 2 can be written as an infinite continued fraction.
+#
+# The infinite continued fraction can be written, [1;(2)], where the (2)
+# indicates that 2 repeats ad infinitum. In a similar way, the square
+# root of 23 is [4;(1,3,1,8)].
+#
+# It turns out that the sequence of partial values of continued fractions
+# for square roots provide the best rational approximations. Let us
+# consider the convergents for the square root of 2.
+#
+# Hence the sequence of the first ten convergents for are:
+#
+# What is most surprising is that the important mathematical constant,
+# e = [2;1,2,1,1,4,1,1,6,1,...,1,2k,1,...].
+#
+# The first ten terms in the sequence of convergents for e are:
+#
+# The sum of digits in the numerator of the 10th convergent is
+#   1 + 4 + 5 + 7 = 17.
+#
+# Find the sum of digits in the numerator of the 100th convergent of the
+# continued fraction for e.
+
+# Start by creating the sequence of denominators
+d = []
+for j in range(1, 101):
+    if (j + 1) % 3 == 0:
+        d = d + [int(2 * ((j + 1) / 3))]
+    else:
+        d = d + [1]
+
+# Set the convergent you are looking for
+it = 100
+
+# Initialize numerator and denominator for first iteration
+i = it
+numerat = 1
+denomin = d[i - 2]
+
+# For each iteration, add the previous denominator and take reciprocal
+while i > 2:
+    # Take the reciprocal of previous denominator + the old fraction
+    denomin_new = numerat + (d[i - 3] * denomin)
+    numerat_new = denomin
+
+    # Update the numerator and denominator
+    denomin = denomin_new
+    numerat = numerat_new
+
+    # Increment i
+    i = i - 1
+
+# Add 2
+numerat = numerat + (2 * denomin)
+
+# Sum the digits of the numerator
+sum_digits(numerat)
+
+# 272 - CORRECT!
+
+# Problem 92 - Square digit chains --------------------------------------
+
+# A number chain is created by continuously adding the square of the
+# digits in a number to form a new number until it has been seen before.
+#
+# For example,
+#   44 → 32 → 13 → 10 → 1 → 1
+#   85 → 89 → 145 → 42 → 20 → 4 → 16 → 37 → 58 → 89
+#
+# Therefore any chain that arrives at 1 or 89 will become stuck in an
+# endless loop. What is most amazing is that EVERY starting number will
+# eventually arrive at 1 or 89.
+#
+# How many starting numbers below ten million will arrive at 89?
+
+n_89 = 0
+for n in range(1, 10000001):
+    print(n)
+
+    while n != 1 and n != 89:
+
+        square_digits_sum = 0
+        # Pick off each digit
+        while n > 0:
+            # Pull out the right-most digit and add square to total
+            square_digits_sum = square_digits_sum + ((n % 10) ** 2)
+
+            # Update the remaining digits
+            n //= 10
+        n = square_digits_sum
+
+    # Count it if it ended in 89
+    if n == 89:
+        n_89 += 1
 
 
 
