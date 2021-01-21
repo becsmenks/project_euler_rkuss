@@ -243,6 +243,36 @@ for i in range(1,1000):
 
 # 9110846700 - CORRECT!
 
+# Problem 53 - Combinatoric selections ------------------------------------
+
+# There are exactly ten ways of selecting three from five, 12345:
+#   123, 124, 125, 134, 135, 145, 234, 235, 245, and 345
+#
+# In combinatorics, we use the notation, n choose r.
+#
+# It is not until n = 23, that a value exceeds one-million:
+#
+# How many, not necessarily distinct, values of n choose r for 1 <= n <= 100,
+# are greater than one-million?
+
+count = 0
+for n in range(1, 101):
+    print(n)
+    r = 1
+    while r <= n:
+        # Calculate n choose r
+        n_choose_r = math.factorial(n) / (math.factorial(r) * math.factorial(n-r))
+
+        # Check if value is greater than 1,000,000
+        if n_choose_r > 1000000:
+            count = count + 1
+
+        # Increment r
+        r = r + 1
+
+count
+
+# 4075 - CORRECT!
 
 # Problem 56 - Powerful digit sum -----------------------------------------
 
