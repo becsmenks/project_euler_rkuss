@@ -243,6 +243,33 @@ for i in range(1,1000):
 
 # 9110846700 - CORRECT!
 
+# Problem 52 - Permuted multiples ----------------------------------------
+
+# It can be seen that the number, 125874, and its double, 251748, contain
+# exactly the same digits, but in a different order.
+#
+# Find the smallest positive integer, x, such that 2x, 3x, 4x, 5x, and 6x,
+# contain the same digits.
+
+x = 0
+go_on = True
+while go_on:
+    x = x + 1
+    print(x)
+
+    x_digits = sorted(list(str(x)))
+
+    if x_digits == sorted(list(str(2 * x))):
+        if x_digits == sorted(list(str(3 * x))):
+            if x_digits == sorted(list(str(4 * x))):
+                if x_digits == sorted(list(str(5 * x))):
+                    if x_digits == sorted(list(str(6 * x))):
+                        go_on = False
+
+x
+
+# 142857 - CORRECT!
+
 # Problem 53 - Combinatoric selections ------------------------------------
 
 # There are exactly ten ways of selecting three from five, 12345:
