@@ -156,6 +156,10 @@ for p in primes_lt_x:
         circular_primes = circular_primes + [p]
         continue
 
+    # If there's any 2 in p, it won't be circular since some combination will end in 2
+    if '2' in str(p) or '4' in str(p) or '5' in str(p) or '6' in str(p) or '8' in str(p) or '0' in str(p):
+        continue
+
     # Start by parsing out the digits of p
     p_part = p
     p_digits = []
@@ -163,10 +167,6 @@ for p in primes_lt_x:
         d = p_part % 10
         p_digits = p_digits + [d]
         p_part = (p_part - d) / 10
-
-    # If there's any 2 in p, it won't be circular since some combination will end in 2
-    if 2 in p_digits or 5 in p_digits or 0 in p_digits:
-        continue
 
     # Now check all the remaining permutations
     p_perms = list(set(itertools.permutations(p_digits)))
