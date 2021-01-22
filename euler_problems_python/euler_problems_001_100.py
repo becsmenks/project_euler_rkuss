@@ -213,23 +213,34 @@ n_digit_primes = sieve_of_eratosthenes(1000000000)
 
 primes = sieve_of_eratosthenes(1000000)
 
-n = 9
+n = 1
 keep_going = True
-while keep_going and n < 100:
-    print(n)
+while keep_going:
     n = n + 2
-    if n in primes:
+
+    # If n is prime, skip it since we only care about odd composites
+    if is_prime(n, primes):
         continue
-    j = 1
-    while keep_going and j < math.sqrt(n):
-        print(j)
-        c = n - 2 * (j ** 2)
-        if c > 0:
-            keep_going = is_prime(c, primes)
+
+    # Try every prime and see if the difference is square
+    primes_to_test = [pr for pr in primes if pr < n]
+    try_again = True
+    j = 0
+    while try_again and j < len(primes_to_test):
+        # Calculate the number that would be squared to check if it's an integer
+        check = math.sqrt((n - primes_to_test[j]) / 2)
+
+        if check == math.floor(check):
+            try_again = False
         else:
-            keep_going = True
-        print(keep_going)
-        j = j + 1
+            j = j + 1
+
+    # If after checking all possible primes, you didn't find one that works, we
+    # have our answer
+    if try_again:
+        keep_going = False
+
+# 5777 - CORRECT!
 
 # Problem 48 - Self powers -----------------------------------------------
 
