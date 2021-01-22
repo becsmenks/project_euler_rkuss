@@ -2761,6 +2761,48 @@ fig_cyc_soln %>%
 
 # 28684 - CORRECT!
 
+# Problem 63 - Powerful digit counts --------------------------------------
+
+# The 5-digit number, 16807=7^5, is also a fifth power. Similarly, the
+# 9-digit number, 134217728=8^9, is a ninth power.
+#
+# How many n-digit positive integers exist which are also an nth power?
+
+powers_of <- data.frame(number = 1:1000) %>% 
+  merge(data.frame(exponent = 1:25)) %>% 
+  mutate(power = number ^ exponent,
+         power_n_dig = case_when(power < 10 ~ 1,
+                                 power < 100 ~ 2,
+                                 power < 1000 ~ 3,
+                                 power < 10000 ~ 4,
+                                 power < 100000 ~ 5,
+                                 power < 1000000 ~ 6,
+                                 power < 10000000 ~ 7,
+                                 power < 100000000 ~ 8,
+                                 power < 1000000000 ~ 9,
+                                 power < 10000000000 ~ 10,
+                                 power < 100000000000 ~ 11,
+                                 power < 1000000000000 ~ 12,
+                                 power < 10000000000000 ~ 13,
+                                 power < 100000000000000 ~ 14,
+                                 power < 1000000000000000 ~ 15,
+                                 power < 10000000000000000 ~ 16,
+                                 power < 100000000000000000 ~ 17,
+                                 power < 1000000000000000000 ~ 18,
+                                 power < 10000000000000000000 ~ 19,
+                                 power < 100000000000000000000 ~ 20,
+                                 power < 1000000000000000000000 ~ 21,
+                                 power < 10000000000000000000000 ~ 22,
+                                 power < 100000000000000000000000 ~ 23,
+                                 power < 1000000000000000000000000 ~ 24,
+                                 power < 10000000000000000000000000 ~ 25,
+                                 TRUE ~ 100000)) %>% 
+  filter(exponent == power_n_dig)
+
+nrow(powers_of)
+
+# 49 - CORRECT!
+
 # Problem 66 - Diophantine equation ---------------------------------------
 
 # Consider quadratic Diophantine equations of the form:
