@@ -136,15 +136,52 @@ triangles <- read.csv("~/git/project_euler_rkuss/euler_data/p102_triangles.txt",
   gather(key, coordinate, -triangle) %>% 
   separate(key, into = c("x_or_y", "point"), sep = "_")
 
-# Check if any coordinates lie on the origin or axes
+# Plot the two triangles from the example
 triangles %>% 
-  group_by(triangle, point) %>% 
-  summarise(is_on_axis = any(coordinate == 0),
-            is_on_origin = all(coordinate == 0)) %>% 
-  ungroup() %>% 
-  View()
+  filter(triangle %in% 1:2) %>% 
+  mutate(triangle = paste("Triangle", triangle)) %>% 
+  spread(x_or_y, coordinate) %>% 
+  ggplot() +
+  aes(x, y, fill = triangle) +
+  geom_polygon(alpha = 0.75) +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  xlab("") +
+  ylab("") +
+  theme_bw() +
+  theme(legend.title = element_blank(),
+        legend.position = 'bottom')
 
+# Loop through all the triangles to test if they contain origin
+triangle_results <- NULL
+for (t in unique(triangles$triangle)) {
+  
+  triangle_t <- triangles %>% 
+    filter(triangle == t)
+  
+  # Get all the coordinates
+  ax <- triangle_t %>% filter(x_or_y == "x", point == "a") %>% pull(coordinate)
+  ay <- triangle_t %>% filter(x_or_y == "y", point == "a") %>% pull(coordinate)
+  bx <- triangle_t %>% filter(x_or_y == "x", point == "b") %>% pull(coordinate)
+  by <- triangle_t %>% filter(x_or_y == "y", point == "b") %>% pull(coordinate)
+  cx <- triangle_t %>% filter(x_or_y == "x", point == "c") %>% pull(coordinate)
+  cy <- triangle_t %>% filter(x_or_y == "y", point == "c") %>% pull(coordinate)
+  
+  # Figure out which side of the half-place the origin is on
+  d1 <- (0 - bx) * (ay - by) - (ax - bx) * (0 - by)
+  d2 <- (0 - cx) * (by - cy) - (bx - cx) * (0 - cy)
+  d3 <- (0 - ax) * (cy - ay) - (cx - ax) * (0 - ay)
+  
+  has_neg <- (d1 < 0) | (d2 < 0) | (d3 < 0)
+  has_pos <- (d1 > 0) | (d2 > 0) | (d3 > 0)
+  
+  triangle_results <- data.frame(triangle = t,
+                                 contains_origin = !(has_neg & has_pos)) %>% 
+    bind_rows(triangle_results)
+                                
+}
 
+sum(triangle_results$contains_origin)
 
 # Problem 112 - Bouncy numbers --------------------------------------------
 
