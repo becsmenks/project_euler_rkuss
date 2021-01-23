@@ -183,6 +183,62 @@ for p in primes_lt_x:
 
 len(circular_primes)
 
+# Problem 37 - Truncatable primes -----------------------------------------
+
+# The number 3797 has an interesting property. Being prime itself, it is
+# possible to continuously remove digits from left to right, and remain prime at
+# each stage: 3797, 797, 97, and 7. Similarly we can work from right to left:
+# 3797, 379, 37, and 3.
+#
+# Find the sum of the only eleven primes that are both truncatable from left to
+# right and right to left.
+#
+# NOTE: 2, 3, 5, and 7 are not considered to be truncatable primes.
+
+x = 1000000
+
+primes_lt_x = sieve_of_eratosthenes(x)
+
+i = 4
+trunc_pr_cnt = 0
+trunc_pr = []
+while trunc_pr_cnt < 11 and i < len(primes_lt_x):
+    # Get the next prime
+    p = primes_lt_x[i]
+    still_prime = True
+
+    #print(p)
+
+    # Pick off each digit from the right
+    n = p
+    d_cnt = 0
+    while n > 0:
+        # Pick off the rightmost digit
+        n = n // 10
+        still_prime = is_prime(n, primes_lt_x) & still_prime
+
+        # Also keep count of digits so we know where to start from the left
+        d_cnt += 1
+
+    # Pick off each digit from the left
+    n = p
+    while d_cnt > 1 & still_prime:
+        # Pick off the leftmost digit
+        n = n - (n // (10 ** (d_cnt - 1))) * (10 ** (d_cnt - 1))
+        still_prime = is_prime(n, primes_lt_x) & still_prime
+
+        # Increment backward number of digits
+        d_cnt -= 1
+
+    # Save prime if always truncatable
+    if still_prime:
+        trunc_pr_cnt += 1
+        trunc_pr = trunc_pr + [p]
+
+    # Increment i
+    i += 1
+
+trunc_pr
 
 # Problem 41 - Pandigital prime -------------------------------------------
 

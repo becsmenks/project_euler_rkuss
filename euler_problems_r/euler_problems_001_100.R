@@ -1537,6 +1537,78 @@ n_ways_1E <- n_ways_1E %>%
   ungroup() %>% 
   distinct(way_1E)
 
+sep_into <- n_ways_1E %>% 
+  mutate(len = str_count(way_1E, "\\+") + 1) %>% 
+  pull(len) %>% 
+  max()
+
+grouped_ways_1E <- n_ways_1E %>% 
+  tibble::rownames_to_column("way_id") %>% 
+  # Separate coins and gather to sort them into order
+  separate(way_1E, into = paste0("coin", 1:sep_into)) %>% 
+  gather(key, coin, starts_with("coin")) %>% 
+  filter(!is.na(coin)) %>% 
+  group_by(way_id, coin) %>% 
+  summarise(n_coins = n()) %>% 
+  ungroup()
+
+grouped_ways_1E_spread <- grouped_ways_1E %>% 
+  spread(coin, n_coins) %>% 
+  replace(is.na(.), 0) %>% 
+  mutate(way_id = factor(way_id))
+
+n_ways_2E <- data.frame(first_1E = as.character(1:nrow(n_ways_1E)), mrg = T) %>% 
+  left_join(data.frame(second_1E = as.character(1:nrow(n_ways_1E)), mrg = T), 
+            by = 'mrg') %>% 
+  select(-mrg) %>% 
+  mutate(uid = if_else(first_1E < second_1E, 
+                       paste0(first_1E, ", ", second_1E),
+                       paste0(second_1E, ", ", first_1E))) %>% 
+  distinct(uid)
+
+
+n_ways_2E_big_dist <- NULL
+for (i in 1:ceiling(nrow(n_ways_2E) / 1000000)) {
+  
+  print(i)
+  i_rows <- (1000000 * (i - 1) + 1):min((1000000 * i), nrow(n_ways_2E))
+  
+  # Join in the combinations of coins for the first euro and second euro
+  n_ways_2E_big <- data.frame(uid = n_ways_2E[i_rows,]) %>% 
+    separate(uid, into = c("first_way_id", "second_way_id")) %>% 
+    mutate(first_way_id = factor(first_way_id, 
+                                 levels = levels(grouped_ways_1E_spread$way_id)),
+           second_way_id = factor(second_way_id, 
+                                  levels = levels(grouped_ways_1E_spread$way_id))) %>% 
+    left_join(grouped_ways_1E_spread, by = c("first_way_id" = "way_id")) %>% 
+    left_join(grouped_ways_1E_spread, by = c("second_way_id" = "way_id"))
+  
+  # Add together
+  n_ways_2E_big_dist <- n_ways_2E_big %>% 
+    mutate(`10p` = `10p.x` + `10p.y`,
+           `1E` = `1E.x` + `1E.y`,
+           `1p` = `1p.x` + `1p.y`,
+           `20p` = `20p.x` + `20p.y`,
+           `2p` = `2p.x` + `2p.y`,
+           `50p` = `50p.x` + `50p.y`,
+           `5p` = `5p.x` + `5p.y`) %>% 
+    distinct(`10p`, `1E`, `1p`, `20p`, `2p`, `50p`, `5p`) %>% 
+    bind_rows(n_ways_2E_big_dist)
+}
+
+distinct(n_ways_2E_big_dist) %>% 
+  nrow() + 1
+
+# QC check
+distinct(n_ways_2E_big_dist) %>% 
+  mutate(total = `1p` + (2 * `2p`) + (5 * `5p`) + (10 * `10p`) + (20 * `20p`) +
+           (50 * `50p`) + (100 * `1E`)) %>% 
+  filter(total != 200) %>% 
+  nrow() == 0
+
+
+
+
 # Count the ways to make 1E50p
 n_ways_1E50p <- merge(n_ways_1E, n_ways_50p) %>% 
   mutate(way_1E50p = paste(way_1E, way_50p, sep = " + ")) %>% 
