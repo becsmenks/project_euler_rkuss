@@ -653,20 +653,6 @@ last_ten
 
 (632382 ** 518061) > (519432 ** 525806)
 
-# Read in base/exponent pairs
-pairs = pd.read_csv("~/git/project_euler_rkuss/euler_data/p099_base_exp.txt",
-                    header=None, keep_default_na=False, names=["base", "exp"])
-
-greatest_val_line_num = 0
-greatest_val = 0
-for i in range(1, len(pairs.index)):
-    print(i)
-    val = pairs["base"][i] ** pairs["exp"][i]
-    if val > greatest_val:
-        print("NEW WINNER")
-        greatest_val = val
-        greatest_val_line_num = i
-
 f = open("../../git/project_euler_rkuss/euler_data/p099_base_exp.txt", "r")
 x_max = '0,0'
 i = 0
@@ -676,6 +662,6 @@ for x in f:
   if (int(x.split(",")[0]) ** int(x.split(",")[1])) > (int(x_max.split(",")[0]) ** int(x_max.split(",")[1])):
       x_max = x
       i_max = i
-
+f.close()
 
 
