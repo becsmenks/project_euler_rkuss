@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import numpy as np
 import itertools
+import decimal
 
 def sum_digits(n):
     # Initialize everything

@@ -634,4 +634,48 @@ while i < 10:
 
 last_ten
 
+# Problem 99 - Largest exponential ---------------------------------
+
+# Comparing two numbers written in index form like 2^11 and 3^7 is not
+# difficult, as any calculator would confirm that 2^11 = 2048 < 3^7 = 2187.
+#
+# However, confirming that 632382^518061 > 519432^525806 would be much more
+# difficult, as both numbers contain over three million digits.
+#
+# Using base_exp.txt (right click and 'Save Link/Target As...'), a 22K
+# text file containing one thousand lines with a base/exponent pair on
+# each line, determine which line number has the greatest numerical value.
+#
+# NOTE: The first two lines in the file represent the numbers in the
+# example given above.
+
+(2 ** 11) < (3 ** 7)
+
+(632382 ** 518061) > (519432 ** 525806)
+
+# Read in base/exponent pairs
+pairs = pd.read_csv("~/git/project_euler_rkuss/euler_data/p099_base_exp.txt",
+                    header=None, keep_default_na=False, names=["base", "exp"])
+
+greatest_val_line_num = 0
+greatest_val = 0
+for i in range(1, len(pairs.index)):
+    print(i)
+    val = pairs["base"][i] ** pairs["exp"][i]
+    if val > greatest_val:
+        print("NEW WINNER")
+        greatest_val = val
+        greatest_val_line_num = i
+
+f = open("../../git/project_euler_rkuss/euler_data/p099_base_exp.txt", "r")
+x_max = '0,0'
+i = 0
+for x in f:
+  print(x)
+  i += 1
+  if (int(x.split(",")[0]) ** int(x.split(",")[1])) > (int(x_max.split(",")[0]) ** int(x_max.split(",")[1])):
+      x_max = x
+      i_max = i
+
+
 
