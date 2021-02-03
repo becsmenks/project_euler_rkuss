@@ -25,9 +25,9 @@
 # What is the value of the first triangle number to have over five hundred
 # divisors?
 
-i = 11990
+i = 50000
 n_div = 0
-while (n_div < 500) & (i < 12000):
+while (n_div < 500) & (i < 55000):
 
     # Get the next triangular number and its list of possible divisors
     tn = sum(list(range(1, i+1)))
@@ -309,6 +309,69 @@ for i in range(1,1000):
     total = total + (i ** i)
 
 # 9110846700 - CORRECT!
+
+# Problem 51 - Prime digit replacements -----------------------------------
+
+# By replacing the 1st digit of the 2-digit number *3, it turns out that six of
+# the nine possible values: 13, 23, 43, 53, 73, and 83, are all prime.
+#
+# By replacing the 3rd and 4th digits of 56**3 with the same digit, this 5-digit
+# number is the first example having seven primes among the ten generated
+# numbers, yielding the family: 56003, 56113, 56333, 56443, 56663, 56773, and
+# 56993. Consequently 56003, being the first member of this family, is the
+# smallest prime with this property.
+#
+# Find the smallest prime which, by replacing part of the number (not
+# necessarily adjacent digits) with the same digit, is part of an eight prime
+# value family.
+
+primes = sieve_of_eratosthenes(1000000)
+
+looking_for_fam_size = 8
+global_smallest_fam_member = 999999999999999
+for p in primes:
+    print(p)
+
+    # Get the number of digits in the prime number
+    str_p = list(str(p))
+    num_dig_p = len(str_p)
+
+    # Try replacing up to all of the digits
+    for replace_n in range(1, num_dig_p + 1):
+        # Initialize the indices you want to replace and get all iterations
+        replace_inds_iter = set(itertools.permutations(([1] * replace_n) + ([0] * (num_dig_p - replace_n))))
+
+        for replace_inds in replace_inds_iter:
+            # Replace the desired indices with each digit 0-9, counting if prime
+            prime_fam_size = 0
+            smallest_fam_member = p
+            for new_digit in range(0, 10):
+                new_number = []
+                # Need to check every digit in list of digits for whether it should be replaced or not
+                for i in range(0, num_dig_p):
+                    if replace_inds[i] == 1:
+                        new_number = new_number + [str(new_digit)]
+                    else:
+                        new_number = new_number + [str_p[i]]
+
+                # Check if it's prime, if so, add it to the family
+                new_number_num = int(''.join(new_number))
+                if is_prime(new_number_num, primes):
+                    prime_fam_size += 1
+                    smallest_fam_member = min(smallest_fam_member, new_number_num)
+
+            # If the family size is eight, update the global smallest family member
+            if prime_fam_size == looking_for_fam_size:
+                print("FOUND ONE!")
+                global_smallest_fam_member = min(global_smallest_fam_member, smallest_fam_member)
+
+
+
+
+
+
+
+
 
 # Problem 52 - Permuted multiples ----------------------------------------
 

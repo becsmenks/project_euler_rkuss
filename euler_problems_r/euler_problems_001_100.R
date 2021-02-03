@@ -456,9 +456,9 @@ tri_seq2 %>%
 
 
 # Try the looping method
-i <- 13000
+i <- 20000
 n_div <- 0
-while ((n_div < 500) & (i < 15000)) {
+while ((n_div < 500) & (i < 22000)) {
   
   # Get the next triangular number and its list of possible divisors
   tn <- sum(1:(i+1))
@@ -2416,6 +2416,24 @@ prime_log %>%
 
 # 997651 - CORRECT!
 
+
+# Problem 51 - Prime digit replacements -----------------------------------
+
+# By replacing the 1st digit of the 2-digit number *3, it turns out that six of 
+# the nine possible values: 13, 23, 43, 53, 73, and 83, are all prime.
+# 
+# By replacing the 3rd and 4th digits of 56**3 with the same digit, this 5-digit 
+# number is the first example having seven primes among the ten generated 
+# numbers, yielding the family: 56003, 56113, 56333, 56443, 56663, 56773, and 
+# 56993. Consequently 56003, being the first member of this family, is the 
+# smallest prime with this property.
+# 
+# Find the smallest prime which, by replacing part of the number (not 
+# necessarily adjacent digits) with the same digit, is part of an eight prime 
+# value family.
+
+primes <- sieve_of_eratosthenes(10000)
+
 # Problem 54 - Poker hands ------------------------------------------------
 
 # In the card game poker, a hand consists of five cards and are ranked, from 
@@ -2960,6 +2978,13 @@ tri <- read.csv('~/git/project_euler_rkuss/euler_data/p067_triangle.txt',
   replace(is.na(.), 0) %>% 
   as.matrix()
 
+# tri <- matrix(c(3, 0, 0, 0,
+#                 7, 4, 0, 0,
+#                 2, 4, 6, 0,
+#                 8, 5, 9, 3), byrow = T, nrow = 4)
+
+use_dense_constr <- T
+
 # Set up data frame with decision variables and their values
 tri_df <- data.frame(tri) %>% 
   tibble::rownames_to_column("row") %>% 
@@ -3016,13 +3041,34 @@ constr_dir <- constr_df %>%
 constr_rhs <- constr_df %>% 
   pull(rhs)
 
-# Solve the linear program
-soln <- lp(direction = "max",
-           objective.in = obj_coeff,
-           const.mat = constr_mat,
-           const.dir = constr_dir,
-           const.rhs = constr_rhs,
-           all.bin = T)
+if (use_dense_constr) {
+  # Get the dense constraint matrix
+  constr_mat_dense <- constr_mat %>% 
+    as.data.frame() %>% 
+    add_rownames("row") %>% 
+    setNames(c("row", as.character(1:ncol(constr_mat)))) %>% 
+    gather(col, value, -row) %>% 
+    mutate(row = as.numeric(row),
+           col = as.numeric(col)) %>% 
+    filter(value != 0) %>% 
+    as.matrix()
+    
+  # Solve the linear program
+  soln <- lp(direction = "max",
+             objective.in = obj_coeff,
+             dense.const = constr_mat_dense,
+             const.dir = constr_dir,
+             const.rhs = constr_rhs,
+             all.bin = T)
+} else {
+  # Solve the linear program
+  soln <- lp(direction = "max",
+             objective.in = obj_coeff,
+             const.mat = constr_mat,
+             const.dir = constr_dir,
+             const.rhs = constr_rhs,
+             all.bin = T)
+}
 
 soln$objval
 
