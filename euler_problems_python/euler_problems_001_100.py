@@ -143,45 +143,34 @@ names_scores['name_score'].sum()
 #
 # How many circular primes are there below one million?
 
-x = 1000000
-
+x = 1_000_000
 primes_lt_x = sieve_of_eratosthenes(x)
 
-circular_primes = []
-for p in primes_lt_x:
-    print(p)
+primes_to_check = [p for p in primes_lt_x if p>10]
+primes_to_check = [p for p in primes_to_check if '0' not in str(p)]
+primes_to_check = [p for p in primes_to_check if '2' not in str(p)]
+primes_to_check = [p for p in primes_to_check if '4' not in str(p)]
+primes_to_check = [p for p in primes_to_check if '5' not in str(p)]
+primes_to_check = [p for p in primes_to_check if '6' not in str(p)]
+primes_to_check = [p for p in primes_to_check if '8' not in str(p)]
 
-    # If it's less than 10, it's circular so skip ahead
-    if p < 10:
-        circular_primes = circular_primes + [p]
-        continue
-
-    # If there's any 2 in p, it won't be circular since some combination will end in 2
-    if '2' in str(p) or '4' in str(p) or '5' in str(p) or '6' in str(p) or '8' in str(p) or '0' in str(p):
-        continue
-
+circular_primes = [2, 3, 5, 7]
+for p in primes_to_check:
+    
     # Start by parsing out the digits of p
-    p_part = p
-    p_digits = []
-    while p_part > 0:
-        d = p_part % 10
-        p_digits = p_digits + [d]
-        p_part = (p_part - d) / 10
+    str_p = str(p)
+    long_str_p = str_p + str_p
+    n_digits = len(str_p)
 
     # Now check all the remaining permutations
-    p_perms = list(set(itertools.permutations(p_digits)))
-    p_perms_primality = []
-    for x in p_perms:
-        v = 0
-        for j in range(0, len(x)):
-            scale = 10 ** (len(x) - j - 1)
-            v = v + (x[j] * scale)
-        p_perms_primality = p_perms_primality + [is_prime(v, primes_lt_x)]
-
-    if all(p_perms_primality):
-        circular_primes = circular_primes + [p]
+    p_rotations = [int(long_str_p[i:(n_digits+i)]) for i in range(n_digits)]
+    
+    if all([p in primes_lt_x for p in p_rotations]):
+        circular_primes.append(p)
 
 len(circular_primes)
+
+# 55 - CORRECT!
 
 # Problem 37 - Truncatable primes -----------------------------------------
 
