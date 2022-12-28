@@ -27,26 +27,15 @@
 
 i = 50000
 n_div = 0
-while (n_div < 500) & (i < 55000):
+while (n_div < 5) & (i < 55000):
 
     # Get the next triangular number and its list of possible divisors
     tn = sum(list(range(1, i+1)))
     poss_div = list(range(1, math.ceil((tn+1)/2)))
-
-    # Check number of divisors
-    n_div_tn = 0
-    for d in poss_div:
-        if tn % d == 0:
-            n_div_tn = n_div_tn + 1
-
-    print(n_div_tn)
-
-    # Update max number of divisors
-    n_div = n_div_tn
-    i = i + 1
-
-
-
+    
+    n_div = len([d for d in poss_div if tn % d == 0])
+    i += 1
+tn
 
 # Problem 16 - Power digit sum --------------------------------------------
 
