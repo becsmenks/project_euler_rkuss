@@ -184,51 +184,33 @@ len(circular_primes)
 #
 # NOTE: 2, 3, 5, and 7 are not considered to be truncatable primes.
 
-x = 1000000
-
+x = 1_000_000
 primes_lt_x = sieve_of_eratosthenes(x)
+primes_to_check = [p for p in primes_lt_x if p > 7]
+primes_to_check = [p for p in primes_to_check if '0' not in str(p)]
+primes_to_check = [p for p in primes_to_check if ('2' not in str(p)) or (str(p)[0]=='2')]
+primes_to_check = [p for p in primes_to_check if '4' not in str(p)]
+primes_to_check = [p for p in primes_to_check if ('5' not in str(p)) or (str(p)[0]=='5')]
+primes_to_check = [p for p in primes_to_check if '6' not in str(p)]
+primes_to_check = [p for p in primes_to_check if '8' not in str(p)]
 
-i = 4
-trunc_pr_cnt = 0
 trunc_pr = []
-while trunc_pr_cnt < 11 and i < len(primes_lt_x):
-    # Get the next prime
-    p = primes_lt_x[i]
-    still_prime = True
+for p in primes_to_check:
+    str_p = str(p)
+    from_left = [int(str_p[:i]) for i in range(1, len(str_p)+1)]
+    from_right = [int(str_p[i:]) for i in range(len(str_p))]
+    check_list = list(set(from_left + from_right))
+    primality_list = [p in primes_lt_x for p in check_list]
+    if all(primality_list):
+        trunc_pr.append(p)
+        print(f'#{len(trunc_pr)}: {p}')
+        if len(trunc_pr)==11:
+            break
 
-    #print(p)
+sum(trunc_pr)
 
-    # Pick off each digit from the right
-    n = p
-    d_cnt = 0
-    while n > 0:
-        # Pick off the rightmost digit
-        n = n // 10
-        still_prime = is_prime(n, primes_lt_x) & still_prime
-
-        # Also keep count of digits so we know where to start from the left
-        d_cnt += 1
-
-    # Pick off each digit from the left
-    n = p
-    while d_cnt > 1 & still_prime:
-        # Pick off the leftmost digit
-        n = n - (n // (10 ** (d_cnt - 1))) * (10 ** (d_cnt - 1))
-        still_prime = is_prime(n, primes_lt_x) & still_prime
-
-        # Increment backward number of digits
-        d_cnt -= 1
-
-    # Save prime if always truncatable
-    if still_prime:
-        trunc_pr_cnt += 1
-        trunc_pr = trunc_pr + [p]
-
-    # Increment i
-    i += 1
-
-trunc_pr
-
+# 748317 - CORRECT!
+            
 # Problem 41 - Pandigital prime -------------------------------------------
 
 # We shall say that an n-digit number is pandigital if it makes use of all the
