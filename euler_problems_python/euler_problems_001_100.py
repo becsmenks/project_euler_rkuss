@@ -122,6 +122,49 @@ names_scores['name_score'].sum()
 
 # 871198282 - CORRECT!
 
+# Problem 31 - Coin sums ------------------------------------------------
+
+# In the United Kingdom the currency is made up of pound (£) and pence (p).
+# There are eight coins in general circulation:
+
+# 1p, 2p, 5p, 10p, 20p, 50p, £1 (100p), and £2 (200p).
+# It is possible to make £2 in the following way:
+
+# 1×£1 + 1×50p + 2×20p + 1×5p + 1×2p + 3×1p
+# How many different ways can £2 be made using any number of coins?
+
+
+def reduction_step(coins_dict):
+    #print('------------------------------')
+    total = sum([v*q for v,q in zip(coins_dict.keys(), coins_dict.values())])
+    start_string = f'started with: {coins_dict} -- total={total}'
+    to_reduce = min([v for v,q in zip(coins_dict.keys(), coins_dict.values()) if q>0 and v>1])
+    coins_dict[to_reduce] -= 1
+    while(to_reduce>0):
+        #print(f'remaining to reduce = {to_reduce}')
+        if to_reduce>1:
+            next_lowest = max([v for v in coins_dict.keys() if v<to_reduce])
+        else:
+            next_lowest = 1
+        n_next_lowest = math.floor(to_reduce / next_lowest)
+        coins_dict[next_lowest] += n_next_lowest
+        #print(f'added {n_next_lowest}x {next_lowest}')
+        to_reduce = to_reduce - (next_lowest * n_next_lowest)
+    total = sum([v*q for v,q in zip(coins_dict.keys(), coins_dict.values())])
+    end_string = f'ended with: {coins_dict} -- total={total}'
+    #print(start_string)
+    #print(end_string)
+    return coins_dict
+
+c = {1:0, 2:0, 5:0, 10:0, 20:0, 50:0, 100:0, 200:1}
+coin_combos = [c.copy()]
+while(c[1]<200):
+    c = reduction_step(c)
+    if c not in coin_combos:
+        coin_combos.append(c.copy())
+
+len(coin_combos)
+
 # Problem 35 - Circular primes --------------------------------------------
 
 # The number, 197, is called a circular prime because all rotations of the
